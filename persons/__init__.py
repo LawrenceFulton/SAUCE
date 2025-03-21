@@ -12,6 +12,7 @@ import persons.person
 import persons.human
 import persons.person_gpt3_5
 import persons.person_openai_completion
+import persons.person_open_router_completion
 import persons.person_hugging_face
 import persons.asynchronous_persons.async_human
 import persons.asynchronous_persons.experimental_example_persons.first_decides_then_generates as f_d_t_g
@@ -26,6 +27,7 @@ load_dotenv()
 @cache  # adding cache avoid creating the dict again and again, but still make it read only
 def __generate_person_dict():
     return {
+        persons.person_open_router_completion.PersonOpenRouterCompletion.PERSON_TYPE: persons.person_open_router_completion.PersonOpenRouterCompletion,
         persons.fake_person.FakePerson.PERSON_TYPE: persons.fake_person.FakePerson,
         persons.human.Human.PERSON_TYPE: persons.human.Human,
         persons.person_gpt3_5.Person3_5.PERSON_TYPE: persons.person_gpt3_5.Person3_5,

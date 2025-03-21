@@ -7,6 +7,7 @@ from __future__ import annotations
 import warnings
 import os
 import openai
+from typing import List
 
 from persons.person import Person
 
