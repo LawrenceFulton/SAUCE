@@ -1,0 +1,32 @@
+{
+    "experiment": {
+        "scenario": "You're discussing the role of woman in relationships. Especially with regars to takiing time of when having a baby.",
+        "survey_questions": [
+            {
+              "id": "conclusion",
+              "iterations": [1,5,10,15,20],
+              "question": "From a scale of 1 to 10, how much time should the husband take off when a baby is born?"
+            }
+          ]      
+    },
+    "host": {
+        "class": "Round Robin Host",
+        "start_person_index": 0
+    },
+    "persons": [
+        {
+            "class": "person_open_router_completion",
+            "name": "Marty Goldstein",
+            "background_story": "Marty Goldstein, 68, a retired professor in New York City, values diversity, education, and social justice. A lifelong Democrat, he supports progressive policies, environmental action, and universal healthcare. He reads The New York Times, donates to NPR, advocates for gun control, and believes in equality and government responsibility."        },
+
+        {
+            "class": "person_open_router_completion",
+            "name": "Jim Carter",
+            "background_story": "Jim Carter, 52, a small business owner in rural Texas, values faith, family, and freedom. A proud gun owner and patriot, he believes in small government, strong borders, and traditional values. He trusts hard work over handouts, supports the military, and prefers conservative media."
+              }
+    ],
+    "endType": {
+        "class": "iteration",
+        "max_num_msgs": 20
+    }
+}
