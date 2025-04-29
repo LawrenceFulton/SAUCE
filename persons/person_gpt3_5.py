@@ -10,14 +10,14 @@ from session_rooms.session_room import System
 
 # protect cyclic imports caused from typing
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from session_rooms.ChatEntry import ChatEntry
+
+from session_rooms.ChatEntry import ChatEntry
 
 
 
 class Person3_5(Person):
     PERSON_TYPE = "person_gpt3_5"
-    MODEL_NAME = "gpt-3.5-turbo"
+    MODEL_NAME = "gpt-4o-mini-2024-07-18"
 
     def __init__(self, background_story: str, name: str, *args, **kwargs):
         super().__init__(background_story, name)

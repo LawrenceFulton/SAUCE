@@ -158,3 +158,46 @@ if __name__ == '__main__':
     if experiment_output:
         pp_dict = {"indent": 4} if arguments.pp else {}
         json.dump(experiment_output, arguments.output, **pp_dict)
+
+        #print("Experiment output:")
+        
+        #print(experiment_output)
+        #print(experiment_output.survey_question[0].chat_entry.__len__())
+        
+        
+
+        # print(experiment_output.survey_question[0].chat_entry)
+        # print(experiment_output.survey_question[0].chat_entry[0].answer)
+        # print(experiment_output.survey_question[0].chat_entry[1].answer)
+        # print(experiment_output.survey_question[1].chat_entry)
+        # print(experiment_output.survey_question[1].chat_entry[-1].answer)
+        # print(experiment_output.survey_question[1].chat_entry[-2].answer)
+
+        # Save the specific values to a CSV file (always appending to test/out.csv)
+        output_filename = "test/out.csv"
+        output_dir = Path("test")
+        output_dir.mkdir(exist_ok=True)
+
+        # Check if the file exists, if not write header
+        output_path = Path(output_filename)
+        if not output_path.exists():
+            with open(output_filename, 'w') as f:
+                f.write("p1_pre,p2_pre,p1_post,p2_post\n")
+
+
+
+        # Extract specific answers (indices 0, 1, 19, 20)
+        specific_answers = [
+            experiment_output.survey_question[0].chat_entry[2].answer,
+            experiment_output.survey_question[0].chat_entry[3].answer,
+            experiment_output.survey_question[1].chat_entry[-2].answer,
+            experiment_output.survey_question[1].chat_entry[-1].answer
+        ]
+
+        # Append to CSV (use 'a' mode instead of 'w')
+        with open(output_filename, 'a') as f:
+            f.write(','.join(specific_answers) + "\n")
+
+        logger.info(f"Appended comma separated values to {output_filename}")
+
+
