@@ -54,8 +54,10 @@ class SessionRoom:
         should_keep = lambda cur_len, trigger: (cur_len in trigger) or \
                                                f"{trigger}".lower() == "always" or \
                                                (-1 in trigger and self.experiment.end_type.did_end(self))
-        survey_questions = [q for q in self.experiment.survey_questions \
+        survey_questions_non_copied = [q for q in self.experiment.survey_questions \
                             if should_keep(len(self.chat_room), q.get("iterations"))]
+
+        survey_questions = copy.deepcopy(survey_questions_non_copied)
 
         if not survey_questions:
             return
@@ -67,7 +69,7 @@ class SessionRoom:
                     question_id=survey_question["id"],
                     question_content=survey_question["question"],
                     iteration=len(self.chat_room),
-                    chat_entry=self.chat_room))
+                    chat_entry=copy.deepcopy(self.chat_room)))
 
             survey_entry = ChatEntry(System(), "", survey_question["question"])
             log.info(survey_entry)
