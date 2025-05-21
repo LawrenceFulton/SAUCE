@@ -6,88 +6,123 @@ import warnings
 import os
 import openai 
 import time
-from typing import List
+from typing import Dict, List
 from persons.person import Person
 # Protect cyclic imports caused from typing
 from typing import TYPE_CHECKING
 #if TYPE_CHECKING:
 from session_rooms.ChatEntry import ChatEntry
+from session_rooms.session_room import System
+
 
 class PersonOpenRouterCompletion(Person):
     PERSON_TYPE = "person_open_router_completion"
     MODEL_NAME = "openai/gpt-4o-mini"
     MODEL_NAME = "openai/gpt-4.1-mini"
+    # MODEL_NAME = "openai/gpt-4.1"
+    # MODEL_NAME = "google/gemini-2.5-flash-preview"
     # MODEL_NAME = "google/gemini-2.0-flash-001"
     # MODEL_NAME = "deepseek/deepseek-chat-v3-0324"
-    # MODEL_NAME = "mistral/ministral-8b"
     # MODEL_NAME = "qwen/qwq-32b"
     # MODEL_NAME = "deepseek/deepseek-r1-distill-llama-70b"
+
+
+    # MODEL_NAME = "mistralai/mixtral-8x7b-instruct"
     
-    def __init__(self, background_story: str, name: str, *args, **kwargs):
+    def __init__(self, background_story: str, name: str, prompt_version: str = "v0", *args, **kwargs):
         super().__init__(background_story, name)
         # Set up OpenAI client for OpenRouter with v0.27.7 structure
         self.model_name = PersonOpenRouterCompletion.MODEL_NAME
+
         openai.api_base = "https://openrouter.ai/api/v1"
         openai.api_key = os.getenv("OPENROUTER_API_KEY")
     
-    def generate_answer(self, experiment_scenario: str, chat_list: List[ChatEntry]):
-        generated_prompt: str = self.create_prompt(experiment_scenario, chat_list)
-
-        print(f"Generated prompt: {generated_prompt}")  
+    def generate_answer(self, experiment_scenario: str, chat_list: List[ChatEntry], prompt_version: str):
+        generated_prompt: List[Dict[str, str]] = self.create_prompt(experiment_scenario, chat_list, prompt_version)
 
         full_response = openai.ChatCompletion.create(
             model=self.model_name,
-            messages=[{"role": "user", "content": generated_prompt}],
-            max_tokens=100,  # Limit the response length to 100 tokens.
-            n=1,  # Generate a single response.
-            temperature=0.6,  # Control the randomness of the output.
+            messages=generated_prompt,
+            max_tokens=100, 
+            n=1, 
+            temperature=0.6,
         )
         # Retrieve the generated response
-        try:
-            chat_answer: str = full_response.choices[0].message.content
-        except Exception as e:
-            warnings.warn(f"Error in OpenRouter API call: {e}")
-            chat_answer = "Error: Unable to generate response."
-        
-        if not chat_answer:
-            warnings.warn(f"Empty response from OpenRouter API.")
-            print(full_response)
-            chat_answer = "Error: Empty response."
-        
-
-        # if the response ends with a newline, remove it
-        # needed for google/gemini-2.0-flash-001
-        if chat_answer.endswith("\n"):
-            chat_answer = chat_answer[:-1]
-
-        # remove all "Me:" from the answer
-        # needed for google/gemini-2.0-flash-001
-        chat_answer = chat_answer.replace("Ich:", "")
-        chat_answer = chat_answer.strip()
-        # print(f"Chat answer: {chat_answer}")
-        # print("##############################################")
-
-        return ChatEntry(entity=self, prompt=generated_prompt, answer=chat_answer)
+        output_text: str = full_response.choices[0].message['content']
+        parsed_answer = output_text
+        return ChatEntry(entity=self, prompt=generated_prompt, answer=parsed_answer)
     
-    def create_prompt(self, experiment_scenario: str, chat_list: List[ChatEntry]) -> str:
-        """
-        Creates a prompt with the past conversation formatted as a string.
-        """
-        output = ("Anweisungen:\n"
-                f"Dein Name ist {self.name}.\n"
-                f"Das Szenario ist folgendes: {experiment_scenario}\n"
-                f"Das ist deine Hintergrundgeschichte: {self.background_story}\n\n"
-                "Im Folgenden siehst du ein Gespräch zwischen dir und anderen Personen. "
-                "Vervollständige deine nächste Antwort (beginnend mit 'Ich:'). "
-                "Versuche, dich auf weniger als 30 Wörter zu beschränken. "
-                "Antworte auf Deutsch.\n\n")
+     #TODO: Choose the best prompt and prompt structure (should it all be in system?)
+    def create_prompt(self, experiment_scenario: str,
+                      chat_list: List[ChatEntry], prompt_version: str) -> List[Dict[str, str], ]:
+        """ 
+        Creates a prompt with the past conversation in the format expected by OpenAI Chat API.
+        The returned conversation is a list of entries, which follows the format described at
+        https://help.openai.com/en/articles/7042661-chatgpt-api-transition-guide.
 
-        
+        In particular, the "role" property has 3 values, which we use as follows:
+            - "system": Only used in the first / last entries to set up the person instance identity.
+            - "assistant": Used for messages generated by the person instance.
+            - "user": Used for messages generated by other persons. Each entry can consist of 
+              messages from multiple persons, by concatenating the format "{name}: {content}\n".
+        """
+        if prompt_version ==  "v0":
+
+            ###0###
+            name_message = {"role": "system", "content": f"Your name is {self.name}."}
+            scenario_message = {"role": "system", "content": f"The scenario is the following:"
+                                                            f" {experiment_scenario}"}
+            system_message = {"role": "system", "content": f"This is your background story:"
+                                                        f" {self.background_story}"}
+            general_instructions = {"role": "system", "content": "The following is a conversation between you and and another speaker. Complete "
+                    "your next reply. Try to keep the reply shorter than 30 words.\n\n"}
+            conversation = [general_instructions,name_message, scenario_message, system_message]
+
+        elif prompt_version == "v1":
+
+            ###1### (changes: order of system messages & newline missing in general instructions)
+            name_message = {"role": "system", "content": f"Your name is {self.name}."}
+            scenario_message = {"role": "system", "content": f"The scenario is the following:"
+                                                             f" {experiment_scenario}"}
+            system_message = {"role": "system", "content": f"This is your background story:"
+                                                           f" {self.background_story}"}
+            general_instructions = {"role": "system", "content": "The following is a conversation between you and and another speaker. Complete "
+                    "your next reply. Try to keep the reply shorter than 30 words.\n"}
+            conversation = [name_message, scenario_message, system_message, general_instructions]
+
+        elif prompt_version == "v2":
+            ###2### (changes: German translation)
+            name_message = {"role": "system", "content": f"Your name is {self.name}."}
+            scenario_message = {"role": "system", "content": f"Das Szenario ist das folgende:"
+                                                            f" {experiment_scenario}"}
+            system_message = {"role": "system", "content": f"Dies ist deine Vorgeschichte:"
+                                                        f" {self.background_story}"}
+            general_instructions = {"role": "system", "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Sprecher. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter zu halten.\n\n"}
+            conversation = [general_instructions,name_message, scenario_message, system_message]
+
+        else:
+            assert False, f"Unknown prompt version {prompt_version}. Please use v0, v1 or v2."
+
+
+        other_users_prompt = ""
         for chat_entry in chat_list:
-            cur_person = chat_entry.entity
-            current_name = "Ich" if cur_person is self else cur_person.name
-            output += f"{current_name}: {chat_entry.answer}\n"
-        
-        output += f"###################################\n"
-        output += "Ich: "
-        return output
+            if isinstance(chat_entry.entity, System): # System message
+
+                if other_users_prompt:
+                    conversation.append({"role": "user", "content": other_users_prompt})
+                conversation.append({"role": "system", "content": chat_entry.answer})
+                other_users_prompt = ""
+            elif chat_entry.entity is self:  # My previous message
+                if other_users_prompt:
+                    conversation.append({"role": "user", "content": other_users_prompt})
+                conversation.append({"role": "assistant", "content": chat_entry.answer})
+                other_users_prompt = ""
+            else: # Other user message
+                if other_users_prompt:
+                    other_users_prompt += "\n"
+                other_users_prompt += f"{chat_entry.entity.name}: {chat_entry.answer}"
+
+        if other_users_prompt:
+            conversation.append({"role": "user", "content": other_users_prompt})
+
+        return conversation

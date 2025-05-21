@@ -124,6 +124,13 @@ def _arguments_parsing():
         "--verbose",
         action=argparse.BooleanOptionalAction,
     )
+    parser.add_argument(
+        "-prompt-version",
+        dest="prompt_version",
+        type=str,
+        default="v0",
+        help="The version of the prompt to use. Default is v0"
+    )
 
     return parser.parse_args()
 
@@ -145,7 +152,7 @@ if __name__ == '__main__':
     experiment_cls = Experiment if not arguments.batch_mode else BatchExperiment
     exp: Experiment | None = None
     try:
-        exp = experiment_cls.load_from_string(json.dumps(conf_json))
+        exp = experiment_cls.load_from_string(json.dumps(conf_json), prompt_version=arguments.prompt_version)
     except Exception:
         logger.exception("Unable to load experiment")
         exit(-1)
@@ -157,47 +164,27 @@ if __name__ == '__main__':
         logger.exception("Unhandled exception while running experiment")
     if experiment_output:
         pp_dict = {"indent": 4} if arguments.pp else {}
-        json.dump(experiment_output, arguments.output, **pp_dict)
-
-        #print("Experiment output:")
         
-        #print(experiment_output)
-        #print(experiment_output.survey_question[0].chat_entry.__len__())
-        
-        
+        json.dump(experiment_output, arguments.output, **pp_dict, ensure_ascii=False)
 
-        # print(experiment_output.survey_question[0].chat_entry)
-        # print(experiment_output.survey_question[0].chat_entry[0].answer)
-        # print(experiment_output.survey_question[0].chat_entry[1].answer)
-        # print(experiment_output.survey_question[1].chat_entry)
-        # print(experiment_output.survey_question[1].chat_entry[-1].answer)
-        # print(experiment_output.survey_question[1].chat_entry[-2].answer)
-
-        # Save the specific values to a CSV file (always appending to test/out.csv)
-        output_filename = "test/out.csv"
-        output_dir = Path("test")
-        output_dir.mkdir(exist_ok=True)
-
-        # Check if the file exists, if not write header
-        output_path = Path(output_filename)
-        if not output_path.exists():
-            with open(output_filename, 'w') as f:
-                f.write("p1_pre,p2_pre,p1_post,p2_post\n")
+        surveyQuestions = experiment_output.survey_question
 
 
+        # for each agent get all the answers
+        answers = {}
+        for surveyQuestion in surveyQuestions:
+            chat_entries = surveyQuestion.chat_entry
+            # If chat_entries is not a list, make it a list
+            if not isinstance(chat_entries, list):
+                chat_entries = [chat_entries]
+            for chat_entry in chat_entries:
+                name = chat_entry.entity.name
+                answer = chat_entry.answer
+                if name not in answers:
+                    answers[name] = []
+                answers[name].append(answer)
 
-        # Extract specific answers (indices 0, 1, 19, 20)
-        specific_answers = [
-            experiment_output.survey_question[0].chat_entry[2].answer,
-            experiment_output.survey_question[0].chat_entry[3].answer,
-            experiment_output.survey_question[1].chat_entry[-2].answer,
-            experiment_output.survey_question[1].chat_entry[-1].answer
-        ]
-
-        # Append to CSV (use 'a' mode instead of 'w')
-        with open(output_filename, 'a') as f:
-            f.write(','.join(specific_answers) + "\n")
-
-        logger.info(f"Appended comma separated values to {output_filename}")
-
-
+        # print the answers
+        for name, answer_list in answers.items():
+            print(f"Answers for {name}:")
+            print(answer_list)

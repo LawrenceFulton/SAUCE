@@ -41,6 +41,7 @@ class Experiment:
         self.host: Host = host
         self.scenario = scenario
         self.survey_questions: list[dict] = survey_questions
+        self.prompt_version: str = ""
 
     @classmethod
     def load_from_file(cls, file_path: str) -> Experiment:
@@ -110,7 +111,7 @@ class Experiment:
         return Experiment(persons, session_room, host, end, scenario, survey_questions)
 
     @classmethod
-    def load_from_string(cls, config_string: str):
+    def load_from_string(cls, config_string: str, prompt_version: str):
         """
         Creates a new Experiment instance base on given string
         :param config_string: to parse
@@ -124,7 +125,7 @@ class Experiment:
 
         if not isinstance(exp_config, dict):
             raise TypeError()
-
+        
         persons_obj: Optional[List[Dict[str, str]]] = exp_config.get("persons")
         session_room_obj = exp_config.get("sessionRoom")
         host_obj: Optional[Dict[str, str]] = exp_config.get("host")
@@ -153,6 +154,9 @@ class Experiment:
         end: EndType = cls._load_end_type(end_type_obj)
         self = cls._load_experiment(experiment_type_obj, persons, session_room, host, end,
                                     survey_questions)
+        
+        print("setting up experiment and PROMPT VERSION", prompt_version)   
+        self.prompt_version = prompt_version
         session_room.experiment = self
 
         return self
@@ -163,7 +167,9 @@ class Experiment:
         @return:
         """
         assert self.session_room is not None
-        return self.session_room.run(save_session_file_name)
+
+        print(f"Prompt version: {self.prompt_version} inside experiment")
+        return self.session_room.run(save_session_file_name, prompt_version=self.prompt_version)
 
     def export_file(self, path: str):
         """

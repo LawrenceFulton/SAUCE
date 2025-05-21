@@ -4,16 +4,7 @@
         "survey_questions": [
             {
                 "id": "intro",
-                "iterations": [
-                    2                
-                ],
-                "question": "Von einer Scala von 0 bis 10 wie sehr stimmst du der Aussage zu: Deutschland soll weiterhin die Anwerbung von Fachkräften aus dem Ausland fördern. Antwote nur mit einer Zahl."
-            },
-            {
-                "id": "conclusion",
-                "iterations": [
-                    19               
-                ],
+                "iterations": "always",
                 "question": "Von einer Scala von 0 bis 10 wie sehr stimmst du der Aussage zu: Deutschland soll weiterhin die Anwerbung von Fachkräften aus dem Ausland fördern. Antwote nur mit einer Zahl."
             }
         ]
@@ -24,18 +15,20 @@
     },
     "persons": [
         {
-            "class": "person_hugging_face",
-            "name": "Michel",
-            "background_story": "Ich bin 26 Jahre alt und männlich. Ich habe einen Realschulabschluss, ein mittleres monatliches Haushalts-Nettoeinkommen und ich bin berufstätig. Ich bin überhaupt nicht religiös. Politisch-ideologisch ordne ich mich in der Mitte ein. Ich identifiziere mich mäßig mit der Partei AfD und habe AfD gewählt. Ich lebe in Westdeutschland. Ich finde, die Regierung sollte die Einwanderung einschränken und habe keine Meinung dazu, ob die Regierung Maßnahmen ergreifen sollte, um die Einkommensunterschiede zu verringern."
+            "class": "person_open_router_completion",
+            "name": "Emma",
+            "background_story": "Ich bin 53 Jahre alt und männlich. Ich habe einen Hauptschulabschluss, ein mittleres monatliches Haushalts-Nettoeinkommen und ich bin berufstätig. Ich bin nicht sehr religiös. Politisch-ideologisch ordne ich mich in der Mitte ein. Ich identifiziere mich mäßig mit der Partei Bündnis 90/Die Grünen und habe Bündnis 90/Die Grünen gewählt. Ich lebe in Westdeutschland. Ich finde, die Regierung sollte die Einwanderung einschränken und Maßnahmen ergreifen, um die Einkommensunterschiede zu verringern.",
+            "party": "Bündnis 90/Die Grünen"
         },
         {
-            "class": "person_hugging_face",
-            "name": "Paul",
-            "background_story": "Ich bin 56 Jahre alt und männlich. Ich habe einen Realschulabschluss, ein mittleres monatliches Haushalts-Nettoeinkommen und ich bin berufstätig. Ich bin etwas religiös. Politisch-ideologisch ordne ich mich in der Mitte ein. Ich identifiziere mich ziemlich stark mit der Partei SPD und habe AfD gewählt. Ich lebe in Westdeutschland. Ich finde, die Regierung sollte die Einwanderung einschränken und Maßnahmen ergreifen, um die Einkommensunterschiede zu verringern."
+            "class": "person_open_router_completion",
+            "name": "Lea",
+            "background_story": "Ich bin 72 Jahre alt und männlich. Ich habe einen Hochschulabschluss, ein hohes monatliches Haushalts-Nettoeinkommen und ich bin nicht berufstätig. Ich bin sehr religiös. Politisch-ideologisch ordne ich mich in der Mitte ein. Ich identifiziere mich mit keiner Partei und habe AfD gewählt. Ich lebe in Ostdeutschland. Ich finde, die Regierung sollte die Einwanderung einschränken und Maßnahmen ergreifen, um die Einkommensunterschiede zu verringern.",
+            "party": "AfD"
         }
     ],
-    "endType": { 
+    "endType": {
         "class": "iteration",
-        "max_num_msgs": 20
+        "max_num_msgs": 30
     }
 }

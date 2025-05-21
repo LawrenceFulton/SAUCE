@@ -63,7 +63,7 @@ class CsvFileHandler(logging.FileHandler):
                 if record.kwargs.get('do_classify', False) and record.kwargs.get('classify'):
                     self.classify(log_data)
             df = pd.DataFrame([log_data])
-            df.to_json(self.baseFilename, mode='a', lines=True, orient="records")
+            df.to_json(self.baseFilename, mode='a', lines=True, orient="records", force_ascii=False)
 
         except Exception:
             self.handleError(record)
