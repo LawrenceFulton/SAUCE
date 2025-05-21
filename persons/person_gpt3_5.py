@@ -32,7 +32,7 @@ class Person3_5(Person):
         full_response = openai.ChatCompletion.create(
             model=self.model_name,  # Specify the chat model
             messages=generated_prompt,  # List of messages representing conversation history
-            max_tokens=50,  # Limit the response length to 100 tokens
+            max_tokens=100,  # Limit the response length to 100 tokens
             n=1,  # Generate a single response
             temperature=0.6,  # Control the randomness of the output
         )
@@ -56,12 +56,38 @@ class Person3_5(Person):
               messages from multiple persons, by concatenating the format "{name}: {content}\n".
         """
         
+
+        ###0###
         name_message = {"role": "system", "content": f"Your name is {self.name}."}
         scenario_message = {"role": "system", "content": f"The scenario is the following:"
                                                          f" {experiment_scenario}"}
         system_message = {"role": "system", "content": f"This is your background story:"
                                                        f" {self.background_story}"}
-        conversation = [name_message, scenario_message, system_message]
+        general_instructions = {"role": "system", "content": "The following is a conversation between you and and another speaker. Complete "
+                "your next reply. Try to keep the reply shorter than 30 words.\n\n"}
+        conversation = [general_instructions,name_message, scenario_message, system_message]
+
+
+        ###1### (changes: order of system messages & newline missing in general instructions)
+        # name_message = {"role": "system", "content": f"Your name is {self.name}."}
+        # scenario_message = {"role": "system", "content": f"The scenario is the following:"
+        #                                                  f" {experiment_scenario}"}
+        # system_message = {"role": "system", "content": f"This is your background story:"
+        #                                                f" {self.background_story}"}
+        # general_instructions = {"role": "system", "content": "The following is a conversation between you and and another speaker. Complete "
+        #         "your next reply. Try to keep the reply shorter than 30 words.\n"}
+        # conversation = [name_message, scenario_message, system_message, general_instructions]
+
+
+        ###2### (changes: German translation)
+        name_message = {"role": "system", "content": f"Your name is {self.name}."}
+        scenario_message = {"role": "system", "content": f"Das Szenario ist das folgende:"
+                                                         f" {experiment_scenario}"}
+        system_message = {"role": "system", "content": f"Dies ist deine Vorgeschichte:"
+                                                       f" {self.background_story}"}
+        general_instructions = {"role": "system", "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Sprecher. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter zu halten.\n\n"}
+        conversation = [general_instructions,name_message, scenario_message, system_message]
+
 
         other_users_prompt = ""
         for chat_entry in chat_list:

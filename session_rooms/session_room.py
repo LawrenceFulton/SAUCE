@@ -24,18 +24,21 @@ class SessionRoom:
     def __init__(self, experiment: Optional[Experiment], *args, **kwargs):
         self.experiment: Experiment = experiment
         self.chat_room: List[ChatEntry] = []
+        self.prompt_version: str = ""
 
-    def run(self, save_session_file_name: str = None) -> ExperimentOutput:
+    def run(self, save_session_file_name: str = None, prompt_version: str = "") -> ExperimentOutput:
         """ Runs the session room and returns the generated chat as a dataframe """
         log.info("Session room is running")
 
+        self.prompt_version = prompt_version
+        print(f"Prompt version: {prompt_version} inside session room")
         output = ExperimentOutput()
         while not self.experiment.end_type.did_end(self):
-            self.ask_survey_questions_if_needed(output)
-            new_chat_entry = self.iterate()
+            self.ask_survey_questions_if_needed(output, prompt_version= prompt_version)
+            new_chat_entry = self.iterate(prompt_version=prompt_version)
             if new_chat_entry is not None:
                 output.chat_entry.append(self.chat_room[-1])
-        self.ask_survey_questions_if_needed(output)
+        self.ask_survey_questions_if_needed(output,prompt_version= prompt_version)
 
         if save_session_file_name:
             with open(save_session_file_name, "wb") as file:
@@ -43,17 +46,20 @@ class SessionRoom:
 
         return output
 
-    def ask_survey_questions_if_needed(self, experiment_output: ExperimentOutput):
+    def ask_survey_questions_if_needed(self, experiment_output: ExperimentOutput, prompt_version: str):
         """
         Asks the survey questions that should be triggered at the current iteration.
         All persons participant in the survey and answers are stored in the
         `experiment_output`. This function does not modify `self.chat_room`.
         """
 
-        # Keep only the survey questions that should be asked at the current iteration.
+        #Keep only the survey questions that should be asked at the current iteration.
         should_keep = lambda cur_len, trigger: (cur_len in trigger) or \
                                                f"{trigger}".lower() == "always" or \
                                                (-1 in trigger and self.experiment.end_type.did_end(self))
+        
+        should_keep = lambda cur_len, trigger: cur_len % 4 == 0
+
         survey_questions_non_copied = [q for q in self.experiment.survey_questions \
                             if should_keep(len(self.chat_room), q.get("iterations"))]
 
@@ -64,25 +70,20 @@ class SessionRoom:
 
         log.info("Starting survey. Everyone is answering this end_prompt:")
         for survey_question in survey_questions:
-            experiment_output.survey_question.append(
-                SurveyQuestion(
-                    question_id=survey_question["id"],
-                    question_content=survey_question["question"],
-                    iteration=len(self.chat_room),
-                    chat_entry=copy.deepcopy(self.chat_room)))
 
             survey_entry = ChatEntry(System(), "", survey_question["question"])
-            log.info(survey_entry)
-            # Copy the chat room, so it can later "forget" the survey question.
             chat_room_with_survery = copy.deepcopy(self.chat_room) + [survey_entry]
 
             for next_person in self.experiment.persons:
                 new_chat_entry = next_person.generate_answer(
-                    self.experiment.scenario, chat_room_with_survery)
+                    self.experiment.scenario, chat_room_with_survery, prompt_version)
                 if new_chat_entry is not None:
-                    experiment_output.survey_question[-1].chat_entry.append(
-                        new_chat_entry)
-                    log.info(new_chat_entry)
+                    experiment_output.survey_question.append(
+                        SurveyQuestion(
+                            question_id=survey_question["id"],
+                            question_content=survey_question["question"],
+                            iteration=len(self.chat_room),
+                            chat_entry=new_chat_entry))
 
     @staticmethod
     def load_from_pickle(save_session_file_name: str) -> SessionRoom:
@@ -93,10 +94,10 @@ class SessionRoom:
     def print_session(self) -> str:
         raise NotImplementedError("Need to be implanted")
 
-    def iterate(self):
+    def iterate(self, prompt_version: str = "") :
         next_person: Person = self.experiment.host.get_curr_person_and_move_to_next()
         new_chat_entry = next_person.generate_answer(
-            self.experiment.scenario, self.chat_room)
+            self.experiment.scenario, self.chat_room, prompt_version)
         if new_chat_entry is not None:
             self.chat_room.append(new_chat_entry)
             log.info(new_chat_entry)
