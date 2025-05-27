@@ -14,6 +14,7 @@ import persons.person_gpt3_5
 import persons.person_openai_completion
 import persons.person_open_router_completion
 import persons.person_hugging_face
+import persons.person_vllm
 import persons.asynchronous_persons.async_human
 import persons.asynchronous_persons.experimental_example_persons.first_decides_then_generates as f_d_t_g
 import persons.asynchronous_persons.experimental_example_persons.first_generates_then_decides as f_g_t_d
@@ -32,6 +33,7 @@ def __generate_person_dict():
         persons.human.Human.PERSON_TYPE: persons.human.Human,
         persons.person_gpt3_5.Person3_5.PERSON_TYPE: persons.person_gpt3_5.Person3_5,
         persons.person_openai_completion.PersonOpenAiCompletion.PERSON_TYPE: persons.person_openai_completion.PersonOpenAiCompletion,
+        persons.person_vllm.PersonVLLM.PERSON_TYPE: persons.person_vllm.PersonVLLM,
         persons.person_hugging_face.PersonHuggingFace.PERSON_TYPE:  persons.person_hugging_face.PersonHuggingFace,
         persons.asynchronous_persons.async_human.AsynchronousHuman.PERSON_TYPE: persons.asynchronous_persons.async_human.AsynchronousHuman,
         f_d_t_g.FirstDecidesThenGenerates.PERSON_TYPE: f_d_t_g.FirstDecidesThenGenerates,
