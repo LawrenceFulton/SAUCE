@@ -1,6 +1,7 @@
 import logging
 from typing import List, Dict
 import openai
+from openai import OpenAI
 from persons.person import Person
 from session_rooms.session_room import ChatEntry
 from session_rooms.session_room import System
@@ -10,16 +11,20 @@ log = logging.getLogger(__name__)
 
 class PersonVLLM(Person):
     PERSON_TYPE = "person_vllm"
+    
 
     def __init__(self, background_story: str, name: str, prompt_version: str = "v0", *args, **kwargs):
         super().__init__(background_story, name)
         self.api_base = kwargs.get("vllm_api_base", "http://localhost:8000/v1")
         self.model = kwargs.get("model", "any-model")
-        openai.api_base = self.api_base
-        openai.api_key = "EMPTY"
+        self.client = OpenAI(
+            api_key="EMPTY",  # vLLM usually ignores this, but required by the client
+            base_url=self.api_base,
+        )
+
         self.prompt_version = prompt_version
 
-    def generate_answer(self, experiment_scenario: str, chat_list: list[ChatEntry], prompt_version: str = None):
+    def generate_answer(self, experiment_scenario: str, chat_list: list[ChatEntry], prompt_version: str| None  = None):
         if prompt_version is None:
             prompt_version = self.prompt_version
         messages = self.create_prompt(experiment_scenario, chat_list, prompt_version)
@@ -27,7 +32,7 @@ class PersonVLLM(Person):
         return ChatEntry(entity=self, prompt=messages, answer=answer)
 
     def evaluate(self, messages, max_new_tokens=100):
-        response = openai.ChatCompletion.create(
+        response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
             max_tokens=max_new_tokens,
@@ -35,8 +40,9 @@ class PersonVLLM(Person):
             top_p=0.9,
             n=1,
             stop=["</s>", "\n"]
-        )
-        output = response.choices[0].message.content if response.choices else ""
+        )            
+
+        output = (response.choices[0].message.content or "") if response.choices else ""
         return output.strip().removeprefix("Me: ")
 
       #TODO: Choose the best prompt and prompt structure (should it all be in system?)
