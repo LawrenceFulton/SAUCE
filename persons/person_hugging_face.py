@@ -55,7 +55,7 @@ class PersonHuggingFace(Person):
     def __init__(self, background_story: str, name: str, *args, **kwargs):
         """ Loads the model into GPU / Memory. This might take a few minutes. """
         super().__init__(background_story, name)
-        model_path = kwargs.get("model_path", "microsoft/Phi-3-mini-4k-instruct")  # 13B.
+        model_path = kwargs.get("model_path", "mistralai/Mixtral-8x7B-Instruct-v0.1")  # 13B.
         tokenizer_weights = model_path
         model_weights = model_path
         adapters_weights = ""
