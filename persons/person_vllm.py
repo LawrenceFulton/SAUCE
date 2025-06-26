@@ -1,6 +1,10 @@
 import logging
 from typing import List, Dict
 from openai import OpenAI
+from openai.types.chat import (
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+)
 from persons.person import Person
 from session_rooms.session_room import ChatEntry
 from session_rooms.session_room import System
@@ -21,8 +25,8 @@ class PersonVLLM(Person):
         **kwargs,
     ):
         super().__init__(background_story, name)
-        self.api_base = kwargs.get("vllm_api_base", "http://localhost:8000/v1")
-        self.model = kwargs.get("model", "any-model")
+        self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8000/v1")
+        self.model: str = kwargs.get("model", "any-model")
         self.client = OpenAI(
             api_key="EMPTY",  # vLLM usually ignores this, but required by the client
             base_url=self.api_base,
@@ -38,11 +42,13 @@ class PersonVLLM(Person):
     ):
         if prompt_version is None:
             prompt_version = self.prompt_version
-        messages = self.create_prompt(experiment_scenario, chat_list, prompt_version)
+        messages: List[ChatCompletionMessageParam] = self.create_prompt(
+            experiment_scenario, chat_list, prompt_version
+        )
         answer = self.evaluate(messages)
         return ChatEntry(entity=self, prompt=messages, answer=answer)
 
-    def evaluate(self, messages, max_new_tokens=100):
+    def evaluate(self, messages: List[ChatCompletionMessageParam], max_new_tokens=100):
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
@@ -59,7 +65,7 @@ class PersonVLLM(Person):
     # TODO: Choose the best prompt and prompt structure (should it all be in system?)
     def create_prompt(
         self, experiment_scenario: str, chat_list: List[ChatEntry], prompt_version: str
-    ) -> List[Dict[str, str],]:
+    ) -> List[ChatCompletionMessageParam]:
         """
         Creates a prompt with the past conversation in the format expected by OpenAI Chat API.
         The returned conversation is a list of entries, which follows the format described at
@@ -74,22 +80,25 @@ class PersonVLLM(Person):
         if prompt_version == "v0":
 
             ###0###
-            name_message = {"role": "system", "content": f"Your name is {self.name}."}
-            scenario_message = {
+            name_message: ChatCompletionSystemMessageParam = {
+                "role": "system",
+                "content": f"Your name is {self.name}.",
+            }
+            scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": f"The scenario is the following:" f" {experiment_scenario}",
             }
-            system_message = {
+            system_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": f"This is your background story:"
                 f" {self.background_story}",
             }
-            general_instructions = {
+            general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": "The following is a conversation between you and and another speaker. Complete "
                 "your next reply. Try to keep the reply shorter than 30 words.\n\n",
             }
-            conversation = [
+            conversation: List[ChatCompletionMessageParam] = [
                 general_instructions,
                 name_message,
                 scenario_message,
@@ -99,22 +108,25 @@ class PersonVLLM(Person):
         elif prompt_version == "v1":
 
             ###1### (changes: order of system messages & newline missing in general instructions)
-            name_message = {"role": "system", "content": f"Your name is {self.name}."}
-            scenario_message = {
+            name_message: ChatCompletionSystemMessageParam = {
+                "role": "system",
+                "content": f"Your name is {self.name}.",
+            }
+            scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": f"The scenario is the following:" f" {experiment_scenario}",
             }
-            system_message = {
+            system_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": f"This is your background story:"
                 f" {self.background_story}",
             }
-            general_instructions = {
+            general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": "The following is a conversation between you and and another speaker. Complete "
                 "your next reply. Try to keep the reply shorter than 30 words.\n",
             }
-            conversation = [
+            conversation: List[ChatCompletionMessageParam] = [
                 name_message,
                 scenario_message,
                 system_message,
@@ -123,20 +135,23 @@ class PersonVLLM(Person):
 
         elif prompt_version == "v2":
             ###2### (changes: German translation)
-            name_message = {"role": "system", "content": f"Your name is {self.name}."}
+            name_message: ChatCompletionSystemMessageParam = {
+                "role": "system",
+                "content": f"Your name is {self.name}.",
+            }
             scenario_message = {
                 "role": "system",
                 "content": f"Das Szenario ist das folgende:" f" {experiment_scenario}",
             }
-            system_message = {
+            system_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": f"Dies ist deine Vorgeschichte:" f" {self.background_story}",
             }
-            general_instructions = {
+            general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Sprecher. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter zu halten.\n\n",
             }
-            conversation = [
+            conversation: List[ChatCompletionMessageParam] = [
                 general_instructions,
                 name_message,
                 scenario_message,
