@@ -7,12 +7,18 @@ import copy
 from faker import Faker
 
 
-QUESTIONS = [
-    "Auf allen Autobahnen soll ein generelles Tempolimit gelten.",
-    "Deutschland soll seine Verteidigungsausgaben erhöhen.",
-    "Bei Bundestagswahlen sollen auch Jugendliche ab 16 Jahren wählen dürfen.",
-    "Die Förderung von Windenergie soll beendet werden.",
-    "Die Möglichkeiten der Vermieterinnen und Vermieter, Wohnungsmieten zu erhöhen, sollen gesetzlich stärker begrenzt werden.",
+QUESTIONS: list[tuple[str, str]] = [
+    ("Tempolimit", "Auf allen Autobahnen soll ein generelles Tempolimit gelten."),
+    ("Verteidigung", "Deutschland soll seine Verteidigungsausgaben erhöhen."),
+    (
+        "Jugentiche",
+        "Bei Bundestagswahlen sollen auch Jugendliche ab 16 Jahren wählen dürfen.",
+    ),
+    ("Windenergie", "Die Förderung von Windenergie soll beendet werden."),
+    (
+        "Miete",
+        "Die Möglichkeiten der Vermieterinnen und Vermieter, Wohnungsmieten zu erhöhen, sollen gesetzlich stärker begrenzt werden.",
+    ),
 ]
 
 # All unique vote combinations (pairs)
@@ -23,8 +29,26 @@ PARTIES = [
     "FDP",
     "CDU/CSU",
     "AfD",
-    "Nicht gewählt",
+    "keine Partei",
 ]
+
+BASE_CONFIG = {
+    "experiment": {
+        "scenario": "Du diskutierst über die Aussage: {QUESTION}.",
+        "survey_questions": [
+            {
+                "id": "intro",
+                "iterations": "always",
+                "question": "Von einer Scala von 0 bis 10 wie sehr stimmst du der Aussage zu: {QUESTION} Antwote nur mit einer Zahl.",
+            }
+        ],
+    },
+    "host": {"class": "Round Robin Host", "start_person_index": 0},
+    "persons": [
+        # Will be overwritten below
+    ],
+    "endType": {"class": "iteration", "max_num_msgs": 20},
+}
 
 
 def sanitize_filename(s) -> str:
@@ -109,8 +133,12 @@ def create_names(fake: Faker, person1, person2) -> tuple[str, str]:
     return name1, name2
 
 
-def get_persons_from_df(df: pd.DataFrame, p1: str, p2: str, random_state: int) -> tuple[pd.Series, pd.Series]:
+def get_persons_from_df(
+    df: pd.DataFrame, p1: str, p2: str, random_state: int
+) -> tuple[pd.Series, pd.Series]:
     """Get two random persons from the DataFrame based on their vote."""
+
+    print(f"Selecting persons for parties: {p1} and {p2}")
     person1 = df[df["vote"] == p1].sample(1, random_state=random_state).iloc[0]
     person2 = df[df["vote"] == p2].sample(1, random_state=random_state + 1).iloc[0]
 
@@ -121,41 +149,44 @@ def get_persons_from_df(df: pd.DataFrame, p1: str, p2: str, random_state: int) -
 
     return person1, person2
 
+
 def adding_scenario_to_config(config: dict, question: str) -> dict:
     """Add scenario and survey questions to the config."""
     experiment = config.get("experiment", {})
-    
+
     # Dynamically replace {QUESTION} in scenario
     if "scenario" in experiment:
         experiment["scenario"] = experiment["scenario"].replace("{QUESTION}", question)
-    
+
     # Update survey questions
     if "survey_questions" in experiment:
         for q in experiment["survey_questions"]:
             if "question" in q:
                 q["question"] = q["question"].replace("{QUESTION}", question)
-    
+
     config["experiment"] = experiment
     return config
-    
-def create_dir_and_save_config(config: dict, question_index: int, p1: str, p2: str) -> None:
+
+
+def create_dir_and_save_config(
+    config: dict,
+    question_index: int,
+    p1: str,
+    p2: str,
+    iteration: int,
+) -> None:
     """Create directory for the config and save it as a JSON file."""
     safe_p1 = sanitize_filename(p1)
     safe_p2 = sanitize_filename(p2)
 
     combo_dir = os.path.join(
-        file_directory(), f"configs_{question_index}", f"{safe_p1}-{safe_p2}"
+        f"config", f"question_{question_index}", f"{safe_p1}-{safe_p2}"
     )
     os.makedirs(combo_dir, exist_ok=True)
-    filename = f"config_0.json"
+    filename = f"config_{iteration}.json"
     filepath = os.path.join(combo_dir, filename)
-
-    print(f"Filepath: {filepath}")
-
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=4)
-
-    
 
 
 if __name__ == "__main__":
@@ -173,42 +204,37 @@ if __name__ == "__main__":
     # Ensure required columns exist
     assert "prompt" in df.columns and "vote" in df.columns
 
-    base_config = {
-        "experiment": {
-            "scenario": "Du diskutierst über die Aussage: {QUESTION}.",
-            "survey_questions": [
-                {
-                    "id": "intro",
-                    "iterations": "always",
-                    "question": "Von einer Scala von 0 bis 10 wie sehr stimmst du der Aussage zu: {QUESTION} Antwote nur mit einer Zahl.",
-                }
-            ],
-        },
-        "host": {"class": "Round Robin Host", "start_person_index": 0},
-        "persons": [
-            # Will be overwritten below
-        ],
-        "endType": {"class": "iteration", "max_num_msgs": 20},
-    }
-
     vote_combinations = list(combinations_with_replacement(PARTIES, 2))
 
     for question_index, question in enumerate(QUESTIONS):
-        print(f"Generating configs for question {question_index + 1}: {question}")
+        random_state = 42
+        random.seed(random_state)
+        fake.seed_instance(random_state)
+        # Reset random state for each question
+        # This ensures that the same persons are selected for each question
+        # but different combinations of persons are generated for each question
+
+        print(f"Generating configs for question {question_index + 1}: {question[0]}")
         for party1, party2 in vote_combinations:
 
-            person1, person2 = get_persons_from_df(
-                df, party1, party2, random_state + question_index
-            )
-            names = create_names(fake, person1, person2)
-            persons = create_persons_for_json(
-                vote=(party1, party2), person=(person1, person2), names=names
-            )
+            for iteration in range(1, 10):
+                random_state += 1
 
-            config = copy.deepcopy(base_config)
+                person1, person2 = get_persons_from_df(df, party1, party2, random_state)
+                names = create_names(fake, person1, person2)
+                persons = create_persons_for_json(
+                    vote=(party1, party2), person=(person1, person2), names=names
+                )
 
-            config["persons"] = persons
+                config = copy.deepcopy(BASE_CONFIG)
 
-            config = adding_scenario_to_config(config, question)
+                config["persons"] = persons
 
-            create_dir_and_save_config(config, question_index, party1, party2)
+                question_headline = question[0]
+                question_text = question[1]
+
+                config = adding_scenario_to_config(config, question_text)
+
+                create_dir_and_save_config(
+                    config, question_index, party1, party2, iteration
+                )

@@ -3,8 +3,8 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
 QUESTION_NUMBER = "4"
-DIR = f"config/configs_{QUESTION_NUMBER}"
-VERSIONS = ["v0", "v1", "v2"]
+DIR = f"config/question_{QUESTION_NUMBER}"
+PROMPT_VERSION = ["v0", "v1", "v2"]
 MAX_WORKERS = 10
 
 
@@ -39,7 +39,7 @@ def main():
     subdirs = get_subdirs(DIR)
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         for subdir in subdirs:
-            for version in VERSIONS:
+            for version in PROMPT_VERSION:
                 executor.submit(run_experiment, subdir, version)
 
 
