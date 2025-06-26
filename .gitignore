@@ -196,11 +196,7 @@ fabric.properties
 
 # vs code gitginire
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
+
 
 # Local History for Visual Studio Code
 .history/
@@ -223,3 +219,9 @@ output_files/*
 # ignore config_generator folder
 config_generator/*
 config/*
+
+# ignore all .DS_Store files
+.DS_Store
+
+# test dir
+test/
