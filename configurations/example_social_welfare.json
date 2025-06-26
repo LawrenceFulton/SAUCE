@@ -15,13 +15,13 @@
     },
     "persons": [
         {
-            "class": "person_vllm",
+            "class": "person_open_router_completion",
             "name": "Emma",
             "background_story": "Ich bin 53 Jahre alt und männlich. Ich habe einen Hauptschulabschluss, ein mittleres monatliches Haushalts-Nettoeinkommen und ich bin berufstätig. Ich bin nicht sehr religiös. Politisch-ideologisch ordne ich mich in der Mitte ein. Ich identifiziere mich mäßig mit der Partei Bündnis 90/Die Grünen und habe Bündnis 90/Die Grünen gewählt. Ich lebe in Westdeutschland. Ich finde, die Regierung sollte die Einwanderung einschränken und Maßnahmen ergreifen, um die Einkommensunterschiede zu verringern.",
             "party": "Bündnis 90/Die Grünen"
         },
         {
-            "class": "person_vllm",
+            "class": "person_open_router_completion",
             "name": "Lea",
             "background_story": "Ich bin 72 Jahre alt und männlich. Ich habe einen Hochschulabschluss, ein hohes monatliches Haushalts-Nettoeinkommen und ich bin nicht berufstätig. Ich bin sehr religiös. Politisch-ideologisch ordne ich mich in der Mitte ein. Ich identifiziere mich mit keiner Partei und habe AfD gewählt. Ich lebe in Ostdeutschland. Ich finde, die Regierung sollte die Einwanderung einschränken und Maßnahmen ergreifen, um die Einkommensunterschiede zu verringern.",
             "party": "AfD"
