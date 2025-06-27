@@ -3,7 +3,7 @@ from typing import List, Dict
 from openai import OpenAI
 from openai.types.chat import (
     ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
+    ChatCompletionSystemMessageParam as SysMessage,
 )
 from persons.person import Person
 from session_rooms.session_room import ChatEntry
@@ -26,7 +26,9 @@ class PersonVLLM(Person):
     ):
         super().__init__(background_story, name)
         self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8000/v1")
-        self.model: str = kwargs.get("model", "any-model")
+        self.model: str = kwargs.get(
+            "model", "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
+        )
         self.client = OpenAI(
             api_key="EMPTY",  # vLLM usually ignores this, but required by the client
             base_url=self.api_base,
@@ -80,20 +82,20 @@ class PersonVLLM(Person):
         if prompt_version == "v0":
 
             ###0###
-            name_message: ChatCompletionSystemMessageParam = {
+            name_message: SysMessage = {
                 "role": "system",
                 "content": f"Your name is {self.name}.",
             }
-            scenario_message: ChatCompletionSystemMessageParam = {
+            scenario_message: SysMessage = {
                 "role": "system",
                 "content": f"The scenario is the following:" f" {experiment_scenario}",
             }
-            system_message: ChatCompletionSystemMessageParam = {
+            system_message: SysMessage = {
                 "role": "system",
                 "content": f"This is your background story:"
                 f" {self.background_story}",
             }
-            general_instructions: ChatCompletionSystemMessageParam = {
+            general_instructions: SysMessage = {
                 "role": "system",
                 "content": "The following is a conversation between you and and another speaker. Complete "
                 "your next reply. Try to keep the reply shorter than 30 words.\n\n",
@@ -108,20 +110,20 @@ class PersonVLLM(Person):
         elif prompt_version == "v1":
 
             ###1### (changes: order of system messages & newline missing in general instructions)
-            name_message: ChatCompletionSystemMessageParam = {
+            name_message: SysMessage = {
                 "role": "system",
                 "content": f"Your name is {self.name}.",
             }
-            scenario_message: ChatCompletionSystemMessageParam = {
+            scenario_message: SysMessage = {
                 "role": "system",
                 "content": f"The scenario is the following:" f" {experiment_scenario}",
             }
-            system_message: ChatCompletionSystemMessageParam = {
+            system_message: SysMessage = {
                 "role": "system",
                 "content": f"This is your background story:"
                 f" {self.background_story}",
             }
-            general_instructions: ChatCompletionSystemMessageParam = {
+            general_instructions: SysMessage = {
                 "role": "system",
                 "content": "The following is a conversation between you and and another speaker. Complete "
                 "your next reply. Try to keep the reply shorter than 30 words.\n",
@@ -135,7 +137,7 @@ class PersonVLLM(Person):
 
         elif prompt_version == "v2":
             ###2### (changes: German translation)
-            name_message: ChatCompletionSystemMessageParam = {
+            name_message: SysMessage = {
                 "role": "system",
                 "content": f"Your name is {self.name}.",
             }
@@ -143,11 +145,11 @@ class PersonVLLM(Person):
                 "role": "system",
                 "content": f"Das Szenario ist das folgende:" f" {experiment_scenario}",
             }
-            system_message: ChatCompletionSystemMessageParam = {
+            system_message: SysMessage = {
                 "role": "system",
                 "content": f"Dies ist deine Vorgeschichte:" f" {self.background_story}",
             }
-            general_instructions: ChatCompletionSystemMessageParam = {
+            general_instructions: SysMessage = {
                 "role": "system",
                 "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Sprecher. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter zu halten.\n\n",
             }
