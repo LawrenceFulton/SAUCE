@@ -100,13 +100,13 @@ def create_persons_for_json(
 
     return [
         {
-            "class": "person_open_router_completion",
+            "class": "person_vllm",
             "name": name1,
             "background_story": person1["prompt"],
             "party": p1,
         },
         {
-            "class": "person_open_router_completion",
+            "class": "person_vllm",
             "name": name2,
             "background_story": person2["prompt"],
             "party": p2,

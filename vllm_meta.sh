@@ -3,12 +3,12 @@
 #SBATCH --partition=c23g 
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=48G
+#SBATCH --mem=32G
 #SBATCH --time=01:00:00
 #SBATCH --output=logs/vllm_llama4_scout_%j.log
 
 # Activate environment
-source vllm_env/bin/activate
+source ../../vllm_env/bin/activate
 
 # Make sure log dir exists
 mkdir -p logs
@@ -55,7 +55,7 @@ nvidia-smi
 
 # Run the Python script
 echo "Running Python script..."
-python -u vllm_server_2.py
+python -u run_iterations.py
 
 # Stop the vLLM server
 echo "Stopping vLLM server..."

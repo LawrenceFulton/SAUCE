@@ -8,7 +8,9 @@ from openai import OpenAI
 from typing import List, Literal, cast
 from openai.types.chat import (
     ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
+    ChatCompletionSystemMessageParam as SysMessage,
+    ChatCompletionAssistantMessageParam as AssistantMessage,
+    ChatCompletionUserMessageParam as UserMessage,
 )
 from persons.person import Person
 from session_rooms.ChatEntry import ChatEntry
@@ -68,7 +70,6 @@ class PersonOpenRouterCompletion(Person):
     ) -> List[ChatCompletionMessageParam]:
         """
         Creates a prompt with the past conversation in the format expected by OpenAI Chat API.
-        Creates a prompt with the past conversation in the format expected by OpenAI Chat API.
         The returned conversation is a list of entries, which follows the format described at
         https://help.openai.com/en/articles/7042661-chatgpt-api-transition-guide.
 
@@ -84,31 +85,37 @@ class PersonOpenRouterCompletion(Person):
             "v1",
             "v2",
         ], f"Unknown prompt version {prompt_version}. Please use v0, v1 or v2."
-        prompt_version_literal: Literal["v0", "v1", "v2"] = cast(Literal["v0", "v1", "v2"], prompt_version)
+        prompt_version_literal: Literal["v0", "v1", "v2"] = cast(
+            Literal["v0", "v1", "v2"], prompt_version
+        )
         conversation: List[ChatCompletionMessageParam] = super().prompt_setups(
-            experiment_scenario=experiment_scenario, prompt_version=prompt_version_literal
+            experiment_scenario=experiment_scenario,
+            prompt_version=prompt_version_literal,
         )
 
-        other_users_prompt = ""
+        
         for chat_entry in chat_list:
             if isinstance(chat_entry.entity, System):  # System message
-                if other_users_prompt:
-                    conversation.append({"role": "user", "content": other_users_prompt})
-                conversation.append({"role": "system", "content": chat_entry.answer})
-                other_users_prompt = ""
-            elif chat_entry.entity is self:  # My previous message
-                if other_users_prompt:
-                    conversation.append({"role": "user", "content": other_users_prompt})
-                conversation.append({"role": "assistant", "content": chat_entry.answer})
-                other_users_prompt = ""
-            else:
-                if other_users_prompt:
-                    other_users_prompt += "\n"
-                other_users_prompt += f"{chat_entry.entity.name}: {chat_entry.answer}"
-
-        if other_users_prompt:
-            conversation.append(
-                {"role": "user", "content": other_users_prompt}
-            )  # ChatCompletionUserMessageParam
+                conversation.append(
+                    SysMessage(role="system", content=chat_entry.answer)
+                )
+            elif chat_entry.entity.PERSON_TYPE == self.PERSON_TYPE:  # This
+                # person's message
+                conversation.append(
+                    AssistantMessage(
+                        role="assistant",
+                        content=f"Me: {chat_entry.answer}\n",
+                    )
+                )
+            else:  # Other person's message
+                # Concatenate the name and content of the other person's message
+                conversation.append(
+                    UserMessage(
+                        role="user",
+                        content=f"{chat_entry.entity.name}: {chat_entry.answer}\n",
+                    )
+                )
+                
+            
 
         return conversation

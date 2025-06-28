@@ -4,6 +4,8 @@ from openai import OpenAI
 from openai.types.chat import (
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam as SysMessage,
+    ChatCompletionAssistantMessageParam as AssistantMessage,
+    ChatCompletionUserMessageParam as UserMessage,
 )
 from persons.person import Person
 from session_rooms.session_room import ChatEntry
@@ -92,25 +94,33 @@ class PersonVLLM(Person):
             prompt_version=prompt_version_literal,
         )
 
-        other_users_prompt = ""
+        
         for chat_entry in chat_list:
             if isinstance(chat_entry.entity, System):  # System message
+                conversation.append(
+                    SysMessage(role="system", content=chat_entry.answer)
+                )
+            elif chat_entry.entity.PERSON_TYPE == self.PERSON_TYPE:  # This
+                # person's message
+                conversation.append(
+                    AssistantMessage(
+                        role="assistant",
+                        content=f"Me: {chat_entry.answer}\n",
+                    )
+                )
+            else:  # Other person's message
+                # Concatenate the name and content of the other person's message
+                conversation.append(
+                    UserMessage(
+                        role="user",
+                        content=f"{chat_entry.entity.name}: {chat_entry.answer}\n",
+                    )
+                )
+                
+                
 
-                if other_users_prompt:
-                    conversation.append({"role": "user", "content": other_users_prompt})
-                conversation.append({"role": "system", "content": chat_entry.answer})
-                other_users_prompt = ""
-            elif chat_entry.entity is self:  # My previous message
-                if other_users_prompt:
-                    conversation.append({"role": "user", "content": other_users_prompt})
-                conversation.append({"role": "assistant", "content": chat_entry.answer})
-                other_users_prompt = ""
-            else:  # Other user message
-                if other_users_prompt:
-                    other_users_prompt += "\n"
-                other_users_prompt += f"{chat_entry.entity.name}: {chat_entry.answer}"
 
-        if other_users_prompt:
-            conversation.append({"role": "user", "content": other_users_prompt})
+
+
 
         return conversation
