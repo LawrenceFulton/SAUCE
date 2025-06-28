@@ -27,7 +27,7 @@ class PersonVLLM(Person):
         super().__init__(background_story, name)
         self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8000/v1")
         self.model: str = kwargs.get(
-            "model", "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
+            "model", "meta-llama/Llama-3.1-8B-Instruct"
         )
         self.client = OpenAI(
             api_key="EMPTY",  # vLLM usually ignores this, but required by the client
