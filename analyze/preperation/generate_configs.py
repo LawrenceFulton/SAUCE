@@ -39,7 +39,7 @@ BASE_CONFIG = {
             {
                 "id": "intro",
                 "iterations": "always",
-                "question": "Von einer Scala von 0 bis 10 wie sehr stimmst du der Aussage zu: {QUESTION} Antwote nur mit einer Zahl.",
+                "question": "Auf einer Skala von 1 bis 7: Wie sehr stimmst du der Aussage zu: {QUESTION} Antwote nur mit einer Zahl.",
             }
         ],
     },
