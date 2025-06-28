@@ -161,7 +161,7 @@ class Experiment:
 
         return self
 
-    def run(self, save_session_file_name: str = None) -> ExperimentOutput:
+    def run(self, save_session_file_name: str|None = None) -> ExperimentOutput:
         """
         Start the expiration
         @return:

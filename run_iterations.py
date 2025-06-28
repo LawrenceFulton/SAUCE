@@ -2,10 +2,12 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
-QUESTION_NUMBER = "4"
-DIR = f"config/question_{QUESTION_NUMBER}"
-PROMPT_VERSION = ["v0", "v1", "v2"]
+QUESTION_AMOUNT= 1
 MAX_WORKERS = 10
+PROMPT_VERSION = ["v0"] # , "v1", "v2"]  # Add more versions as needed
+
+
+
 
 
 def get_subdirs(directory):
@@ -30,18 +32,21 @@ def run_experiment(subdir, version):
         "-o",
         output_out,
         "--pretty-print",
+        "--prompt-version",
+        version,
     ]
     subprocess.run(command)
 
-
-def main():
-    print(f"+++++++ QUESTION {QUESTION_NUMBER} +++++++")
-    subdirs = get_subdirs(DIR)
+def all_questions():
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        for subdir in subdirs:
-            for version in PROMPT_VERSION:
-                executor.submit(run_experiment, subdir, version)
+        for q_index in range(QUESTION_AMOUNT):
+            directory = f"config/question_{q_index}"
+            print(f"+++++++ QUESTION {q_index} +++++++")
+            subdirs = get_subdirs(directory)
+            for subdir in subdirs:
+                for version in PROMPT_VERSION:
+                    executor.submit(run_experiment, subdir, version)
 
 
 if __name__ == "__main__":
-    main()
+    all_questions()

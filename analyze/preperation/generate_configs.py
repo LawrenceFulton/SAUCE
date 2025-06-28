@@ -144,6 +144,7 @@ def get_persons_from_df(
 
     # Ensure person1 and person2 are not the same
     while person1.equals(person2):
+        random_state += 1
         person1 = df[df["vote"] == p1].sample(1, random_state=random_state).iloc[0]
         person2 = df[df["vote"] == p2].sample(1, random_state=random_state + 1).iloc[0]
 
@@ -217,7 +218,7 @@ if __name__ == "__main__":
         print(f"Generating configs for question {question_index + 1}: {question[0]}")
         for party1, party2 in vote_combinations:
 
-            for iteration in range(1, 10):
+            for iteration in range(0, 10):
                 random_state += 1
 
                 person1, person2 = get_persons_from_df(df, party1, party2, random_state)
