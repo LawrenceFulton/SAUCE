@@ -5,7 +5,7 @@ This file contains a Person implementation which utilises the OpenRouter API wit
 from __future__ import annotations
 import os
 from openai import OpenAI
-from typing import List
+from typing import List, Literal, cast
 from openai.types.chat import (
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
@@ -79,82 +79,15 @@ class PersonOpenRouterCompletion(Person):
               messages from multiple persons, by concatenating the format "{name}: {content}\n".
         """
 
-        if prompt_version == "v0":
-            name_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Your name is {self.name}.",
-            }
-            scenario_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"The scenario is the following: {experiment_scenario}",
-            }
-            system_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"This is your background story: {self.background_story}",
-            }
-            general_instructions: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": "The following is a conversation between you and and another speaker. Complete your next reply. Try to keep the reply shorter than 30 words.\n\n",
-            }
-            conversation: List[ChatCompletionMessageParam] = [
-                general_instructions,
-                name_message,
-                scenario_message,
-                system_message,
-            ]
-
-        elif prompt_version == "v1":
-            name_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Your name is {self.name}.",
-            }
-            scenario_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"The scenario is the following: {experiment_scenario}",
-            }
-            system_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"This is your background story: {self.background_story}",
-            }
-            general_instructions: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": "The following is a conversation between you and and another speaker. Complete your next reply. Try to keep the reply shorter than 30 words.\n",
-            }
-            conversation: List[ChatCompletionMessageParam] = [
-                name_message,
-                scenario_message,
-                system_message,
-                general_instructions,
-            ]
-
-        elif prompt_version == "v2":
-            name_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Your name is {self.name}.",
-            }
-            scenario_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Das Szenario ist das folgende: {experiment_scenario}",
-            }
-            system_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Dies ist deine Vorgeschichte: {self.background_story}",
-            }
-            general_instructions: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Sprecher. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter zu halten.\n\n",
-            }
-            conversation: List[ChatCompletionMessageParam] = [
-                general_instructions,
-                name_message,
-                scenario_message,
-                system_message,
-            ]
-
-        else:
-            assert (
-                False
-            ), f"Unknown prompt version {prompt_version}. Please use v0, v1 or v2."
+        assert prompt_version in [
+            "v0",
+            "v1",
+            "v2",
+        ], f"Unknown prompt version {prompt_version}. Please use v0, v1 or v2."
+        prompt_version_literal: Literal["v0", "v1", "v2"] = cast(Literal["v0", "v1", "v2"], prompt_version)
+        conversation: List[ChatCompletionMessageParam] = super().prompt_setups(
+            experiment_scenario=experiment_scenario, prompt_version=prompt_version_literal
+        )
 
         other_users_prompt = ""
         for chat_entry in chat_list:
