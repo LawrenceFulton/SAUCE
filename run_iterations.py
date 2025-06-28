@@ -2,24 +2,21 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
-QUESTION_AMOUNT= 1
+QUESTION_AMOUNT= 5
 MAX_WORKERS = 10
-PROMPT_VERSION = ["v0"] # , "v1", "v2"]  # Add more versions as needed
-
-
-
+PROMPT_VERSION = ["v0" , "v1", "v2"]  # Add more versions as needed
 
 
 def get_subdirs(directory):
     return [entry.path for entry in os.scandir(directory) if entry.is_dir()]
 
 
-def run_experiment(subdir, version):
-    print(f"+++++++ {subdir} ({version}) +++++++")
-    config_path = os.path.join(subdir, "config_0.json")
-    output_json = os.path.join(subdir, f"output_{version}.json")
-    output_log = os.path.join(subdir, f"out_{version}.log")
-    output_out = os.path.join(subdir, f"out_{version}.json")
+def run_experiment(subdir: str, prompt_version: str ) -> None:
+    print(f"+++++++ {subdir} ({prompt_version}) +++++++")
+    config_path = os.path.join(subdir, f"config_0.json")
+    output_json = os.path.join(subdir, f"output_{prompt_version}.json")
+    output_log = os.path.join(subdir, f"out_{prompt_version}.log")
+    output_out = os.path.join(subdir, f"out_{prompt_version}.json")
     command = [
         "python",
         "main.py",
@@ -33,7 +30,7 @@ def run_experiment(subdir, version):
         output_out,
         "--pretty-print",
         "--prompt-version",
-        version,
+        prompt_version,
     ]
     subprocess.run(command)
 
