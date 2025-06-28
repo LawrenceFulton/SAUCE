@@ -58,7 +58,6 @@ class PersonVLLM(Person):
             temperature=1.0,
             top_p=0.9,
             n=1,
-            stop=["</s>", "\n"],
         )
 
         output = (response.choices[0].message.content or "") if response.choices else ""
