@@ -125,7 +125,7 @@ def _arguments_parsing():
         action=argparse.BooleanOptionalAction,
     )
     parser.add_argument(
-        "-prompt-version",
+        "--prompt-version",
         dest="prompt_version",
         type=str,
         default="v0",
