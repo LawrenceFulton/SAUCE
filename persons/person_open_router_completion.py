@@ -63,6 +63,9 @@ class PersonOpenRouterCompletion(Person):
         # Retrieve the generated response (updated for new OpenAI package)
         output_text: str | None = full_response.choices[0].message.content
         parsed_answer = output_text if output_text else ""
+
+        parsed_answer = parsed_answer.strip().removeprefix("Me: ").removeprefix(f"{self.name}: ").strip()
+
         return ChatEntry(entity=self, prompt=generated_prompt, answer=parsed_answer)
 
     def create_prompt(
@@ -93,14 +96,10 @@ class PersonOpenRouterCompletion(Person):
             prompt_version=prompt_version_literal,
         )
 
-        
         for chat_entry in chat_list:
             if isinstance(chat_entry.entity, System):  # System message
-                conversation.append(
-                    SysMessage(role="system", content=chat_entry.answer)
-                )
-            elif chat_entry.entity.PERSON_TYPE == self.PERSON_TYPE:  # This
-                # person's message
+                conversation.append(UserMessage(role="user", content=chat_entry.answer))
+            elif chat_entry.entity.name == self.name:  # This person's message
                 conversation.append(
                     AssistantMessage(
                         role="assistant",
@@ -115,7 +114,5 @@ class PersonOpenRouterCompletion(Person):
                         content=f"{chat_entry.entity.name}: {chat_entry.answer}\n",
                     )
                 )
-                
-            
 
         return conversation

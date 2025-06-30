@@ -63,7 +63,8 @@ class PersonVLLM(Person):
         )
 
         output = (response.choices[0].message.content or "") if response.choices else ""
-        return output.strip().removeprefix("Me: ")
+        # remove the "Me: " prefix from the answer
+        return output.strip().removeprefix("Me: ").removeprefix(f"{self.name}: ").strip()
 
     # TODO: Choose the best prompt and prompt structure (should it all be in system?)
     def create_prompt(
@@ -94,13 +95,10 @@ class PersonVLLM(Person):
             prompt_version=prompt_version_literal,
         )
 
-        
         for chat_entry in chat_list:
             if isinstance(chat_entry.entity, System):  # System message
-                conversation.append(
-                    UserMessage(role="user", content=chat_entry.answer)
-                )
-            elif chat_entry.entity.PERSON_TYPE == self.PERSON_TYPE:  # This
+                conversation.append(UserMessage(role="user", content=chat_entry.answer))
+            elif chat_entry.entity.name == self.name:  # This person's message
                 # person's message
                 conversation.append(
                     AssistantMessage(
@@ -116,11 +114,5 @@ class PersonVLLM(Person):
                         content=f"{chat_entry.entity.name}: {chat_entry.answer}\n",
                     )
                 )
-                
-                
-
-
-
-
 
         return conversation
