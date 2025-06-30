@@ -116,7 +116,7 @@ class Person(ABC):
             }
             general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Person. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter und in Detusch zu halten.\n\n",
+                "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Person. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter und in Deutsch zu halten.\n\n",
             }
             conversation: List[ChatCompletionMessageParam] = [
                 general_instructions,
