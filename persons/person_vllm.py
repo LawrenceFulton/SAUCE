@@ -29,7 +29,7 @@ class PersonVLLM(Person):
         super().__init__(background_story, name)
         self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8000/v1")
         self.model: str = kwargs.get(
-            "model", "meta-llama/Llama-3.1-8B-Instruct"
+            "model", "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
         )
         self.client = OpenAI(
             api_key="EMPTY",  # vLLM usually ignores this, but required by the client
@@ -98,7 +98,7 @@ class PersonVLLM(Person):
         for chat_entry in chat_list:
             if isinstance(chat_entry.entity, System):  # System message
                 conversation.append(
-                    SysMessage(role="system", content=chat_entry.answer)
+                    UserMessage(role="user", content=chat_entry.answer)
                 )
             elif chat_entry.entity.PERSON_TYPE == self.PERSON_TYPE:  # This
                 # person's message
