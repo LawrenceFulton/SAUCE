@@ -66,7 +66,7 @@ class Person(ABC):
             }
             general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": "The following is a conversation between you and and another speaker. Complete your next reply. Try to keep the reply shorter than 30 words.\n\n",
+                "content": "The following is a conversation between you and and another person. Complete your next reply. Try to keep the reply shorter than 30 words and in German.\n\n",
             }
             conversation: List[ChatCompletionMessageParam] = [
                 general_instructions,
@@ -90,8 +90,10 @@ class Person(ABC):
             }
             general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": "The following is a conversation between you and and another speaker. Complete your next reply. Try to keep the reply shorter than 30 words.\n",
+                "content": "The following is a conversation between you and and another person. Complete your next reply. Try to keep the reply shorter than 30 words and in German.\n",
             }
+
+            # different order of messages in v1 to v0
             conversation: List[ChatCompletionMessageParam] = [
                 name_message,
                 scenario_message,
@@ -102,7 +104,7 @@ class Person(ABC):
         elif prompt_version == "v2":
             name_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": f"Your name is {self.name}.",
+                "content": f"Dein Name ist {self.name}.",
             }
             scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
@@ -114,7 +116,7 @@ class Person(ABC):
             }
             general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Sprecher. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter zu halten.\n\n",
+                "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Person. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter und in Detusch zu halten.\n\n",
             }
             conversation: List[ChatCompletionMessageParam] = [
                 general_instructions,
