@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 QUESTION_AMOUNT= 5
 MAX_WORKERS = 10
-PROMPT_VERSION = ["v0" , "v1", "v2"]  # Add more versions as needed
+PROMPT_VERSION = ["v0" , "v1", "v2"]
 
 
 def get_subdirs(directory):
@@ -14,9 +14,9 @@ def get_subdirs(directory):
 def run_experiment(subdir: str, prompt_version: str ) -> None:
     print(f"+++++++ {subdir} ({prompt_version}) +++++++")
     config_path = os.path.join(subdir, f"config_0.json")
-    output_json = os.path.join(subdir, f"output_{prompt_version}.json")
-    output_log = os.path.join(subdir, f"out_{prompt_version}.log")
-    output_out = os.path.join(subdir, f"out_{prompt_version}.json")
+    output_json = os.path.join(subdir, f"output_mistral_{prompt_version}.json")
+    output_log = os.path.join(subdir, f"out_mistral_{prompt_version}.log")
+    output_out = os.path.join(subdir, f"out_mistral_{prompt_version}.json")
     command = [
         "python",
         "main.py",
