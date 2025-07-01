@@ -39,7 +39,7 @@ class PersonOpenRouterCompletion(Person):
         **kwargs,
     ):
         super().__init__(background_story, name)
-        # Set up OpenAI client for OpenRouter with v0.27.7 structure
+
         self.model_name = PersonOpenRouterCompletion.MODEL_NAME
         self.client = OpenAI(
             api_key=os.getenv("OPENROUTER_API_KEY"),
@@ -64,7 +64,9 @@ class PersonOpenRouterCompletion(Person):
         output_text: str | None = full_response.choices[0].message.content
         parsed_answer = output_text if output_text else ""
 
-        parsed_answer = parsed_answer.strip().removeprefix("Me: ").removeprefix(f"{self.name}: ").strip()
+        parsed_answer = (
+            parsed_answer.removeprefix("Me: ").removeprefix(f"{self.name}: ").strip()
+        )
 
         return ChatEntry(entity=self, prompt=generated_prompt, answer=parsed_answer)
 
@@ -103,7 +105,7 @@ class PersonOpenRouterCompletion(Person):
                 conversation.append(
                     AssistantMessage(
                         role="assistant",
-                        content=f"Me: {chat_entry.answer}\n",
+                        content=f"{chat_entry.answer}\n",
                     )
                 )
             else:  # Other person's message
@@ -111,7 +113,7 @@ class PersonOpenRouterCompletion(Person):
                 conversation.append(
                     UserMessage(
                         role="user",
-                        content=f"{chat_entry.entity.name}: {chat_entry.answer}\n",
+                        content=f"{chat_entry.answer}\n",
                     )
                 )
 

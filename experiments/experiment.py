@@ -155,7 +155,6 @@ class Experiment:
         self = cls._load_experiment(experiment_type_obj, persons, session_room, host, end,
                                     survey_questions)
         
-        print("setting up experiment and PROMPT VERSION", prompt_version)   
         self.prompt_version = prompt_version
         session_room.experiment = self
 
@@ -168,7 +167,6 @@ class Experiment:
         """
         assert self.session_room is not None
 
-        print(f"Prompt version: {self.prompt_version} inside experiment")
         return self.session_room.run(save_session_file_name, prompt_version=self.prompt_version)
 
     def export_file(self, path: str):

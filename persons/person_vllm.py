@@ -57,14 +57,15 @@ class PersonVLLM(Person):
             model=self.model,
             messages=messages,
             max_tokens=max_new_tokens,
-            temperature=1.0,
-            top_p=0.9,
             n=1,
+            temperature=0.6,
         )
 
         output = (response.choices[0].message.content or "") if response.choices else ""
         # remove the "Me: " prefix from the answer
-        return output.strip().removeprefix("Me: ").removeprefix(f"{self.name}: ").strip()
+        return (
+            output.strip().removeprefix("Me: ").removeprefix(f"{self.name}: ").strip()
+        )
 
     # TODO: Choose the best prompt and prompt structure (should it all be in system?)
     def create_prompt(
@@ -103,7 +104,7 @@ class PersonVLLM(Person):
                 conversation.append(
                     AssistantMessage(
                         role="assistant",
-                        content=f"Me: {chat_entry.answer}\n",
+                        content=f"{chat_entry.answer}\n",
                     )
                 )
             else:  # Other person's message
@@ -111,7 +112,7 @@ class PersonVLLM(Person):
                 conversation.append(
                     UserMessage(
                         role="user",
-                        content=f"{chat_entry.entity.name}: {chat_entry.answer}\n",
+                        content=f"{chat_entry.answer}\n",
                     )
                 )
 
