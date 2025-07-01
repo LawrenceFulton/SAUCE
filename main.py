@@ -20,7 +20,7 @@ def __init_logging_system(
         json_df_path: str,
         json_df_save: bool = False,
         console_show=True,
-        level=logging.INFO
+        level=logging.WARNING,
 
 ):
     logging.setLoggerClass(OurLogger)
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         log_path=arguments.out_log,
         json_df_save=arguments.json,
         json_df_path=arguments.out_json,
-        level=logging.DEBUG if arguments.verbose else logging.INFO
+        level=logging.WARNING #       level=logging.DEBUG if arguments.verbose else logging.INFO
     )
     # conf_path = "./test/test_config.json"
     logger.info(f"open config from {arguments.config.name}")

@@ -31,7 +31,6 @@ class SessionRoom:
         log.info("Session room is running")
 
         self.prompt_version = prompt_version
-        print(f"Prompt version: {prompt_version} inside session room")
         output = ExperimentOutput()
         while not self.experiment.end_type.did_end(self):
             self.ask_survey_questions_if_needed(output, prompt_version= prompt_version)

@@ -66,7 +66,7 @@ class Person(ABC):
             }
             general_instructions: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": "The following is a conversation between you and and another person. Complete your next reply. Try to keep the reply shorter than 30 words and in German.\n\n",
+                "content": "The following is a debate between you and and another person. Complete your next reply. Try to keep the reply shorter than 30 words and in German.\n\n",
             }
             conversation: List[ChatCompletionMessageParam] = [
                 general_instructions,
