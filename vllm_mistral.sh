@@ -22,7 +22,9 @@ echo "Starting vLLM server..."
 vllm serve mistralai/Mistral-Small-3.1-24B-Instruct-2503 \
     --tokenizer_mode mistral \
     --config_format mistral \
-    --load_format mistral &
+    --load_format mistral \
+    --port 8001 &
+
 
 
 # Get the PID of the vLLM server
@@ -32,17 +34,17 @@ echo "vLLM server started with PID: $VLLM_PID"
 
 # Wait for the server to start
 echo "Waiting for vLLM server to start..."
-for i in {1..120}; do
-    if curl -s http://localhost:8000/health >/dev/null 2>&1; then
+for i in {1..200}; do
+    if curl -s http://localhost:8001/health >/dev/null 2>&1; then
         echo "vLLM server is ready!"
         break
     fi
-    echo "Waiting... (attempt $i/120)"
+    echo "Waiting... (attempt $i/200)"
     sleep 5
 done
 
 # Final check if the server is running
-if ! curl -s http://localhost:8000/health >/dev/null 2>&1; then
+if ! curl -s http://localhost:8001/health >/dev/null 2>&1; then
     echo "vLLM server failed to start or is not responding."
     kill $VLLM_PID 2>/dev/null
     exit 1

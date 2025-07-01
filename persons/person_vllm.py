@@ -27,7 +27,7 @@ class PersonVLLM(Person):
         **kwargs,
     ):
         super().__init__(background_story, name)
-        self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8000/v1")
+        self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8001/v1")
         self.model: str = kwargs.get(
             "model", "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
         )
