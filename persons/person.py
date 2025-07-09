@@ -64,10 +64,18 @@ class Person(ABC):
         Returns the prompt setup for the given version.
         """
         if prompt_version == "v0":
-            scenario_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Scenario: {experiment_scenario}\nBackground Story: {self.background_story}\nThe following is a debate between you and and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n\n",
-            }
+
+            if is_questionnaire:
+                scenario_message: ChatCompletionSystemMessageParam = {
+                    "role": "system",
+                    "content": f"Scenario: {experiment_scenario}\nBackground Story: {self.background_story}\nThe following is a a debate between you and another person\n"
+                }
+            else: 
+                scenario_message: ChatCompletionSystemMessageParam = {
+                    "role": "system",
+                    "content": f"Scenario: {experiment_scenario}\nBackground Story: {self.background_story}\nThe following is a debate between you and and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n\n",
+                }
+
             conversation: List[ChatCompletionMessageParam] = [
                 scenario_message,
             ]
@@ -85,7 +93,7 @@ class Person(ABC):
             if is_questionnaire:
                 general_instructions: ChatCompletionSystemMessageParam = {
                     "role": "system",
-                    "content": "The following is a conversation between you and another person. You will be asked to answer a survey question. Complete your next reply with only a number.\n Example: If the question is 'How important are bees for the ecosystem?', your answer would be '6' or '7'.\n",
+                    "content": "The following is a conversation between you and another person.",
                 }
 
             else:
@@ -114,7 +122,7 @@ class Person(ABC):
                 instructions_message: ChatCompletionSystemMessageParam = {
                     "role": "system",
                     "content": (
-                        "You are about to answer a survey question as part of a conversation. "
+                        "You are about to have a conversation with another person."
                         "Please reply with only a number."
                     ),
                 }
