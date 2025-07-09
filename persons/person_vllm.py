@@ -69,7 +69,7 @@ class PersonVLLM(Person):
 
     # TODO: Choose the best prompt and prompt structure (should it all be in system?)
     def create_prompt(
-        self, experiment_scenario: str, chat_list: List[ChatEntry], prompt_version: str
+        self, experiment_scenario: str, chat_list: List[ChatEntry], prompt_version: str, is_questionnaire: bool = False
     ) -> List[ChatCompletionMessageParam]:
         """
         Creates a prompt with the past conversation in the format expected by OpenAI Chat API.
@@ -94,6 +94,7 @@ class PersonVLLM(Person):
         conversation: List[ChatCompletionMessageParam] = super().prompt_setups(
             experiment_scenario=experiment_scenario,
             prompt_version=prompt_version_literal,
+            is_questionnaire=is_questionnaire,
         )
 
         for chat_entry in chat_list:

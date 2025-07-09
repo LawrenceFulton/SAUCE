@@ -75,7 +75,7 @@ class SessionRoom:
 
             for next_person in self.experiment.persons:
                 new_chat_entry = next_person.generate_answer(
-                    self.experiment.scenario, chat_room_with_survery, prompt_version)
+                    self.experiment.scenario, chat_room_with_survery, prompt_version, is_questionnaire=True)
                 if new_chat_entry is not None:
                     experiment_output.survey_question.append(
                         SurveyQuestion(
@@ -96,7 +96,7 @@ class SessionRoom:
     def iterate(self, prompt_version: str = "") :
         next_person: Person = self.experiment.host.get_curr_person_and_move_to_next()
         new_chat_entry = next_person.generate_answer(
-            self.experiment.scenario, self.chat_room, prompt_version)
+            self.experiment.scenario, self.chat_room, prompt_version, is_questionnaire=False)
         if new_chat_entry is not None:
             self.chat_room.append(new_chat_entry)
             log.info(new_chat_entry)
