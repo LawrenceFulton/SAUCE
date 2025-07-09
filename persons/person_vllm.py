@@ -43,11 +43,12 @@ class PersonVLLM(Person):
         experiment_scenario: str,
         chat_list: list[ChatEntry],
         prompt_version: str | None = None,
+        is_questionnaire: bool = False,
     ):
         if prompt_version is None:
             prompt_version = self.prompt_version
         messages: List[ChatCompletionMessageParam] = self.create_prompt(
-            experiment_scenario, chat_list, prompt_version
+            experiment_scenario, chat_list, prompt_version, is_questionnaire
         )
         answer = self.evaluate(messages)
         return ChatEntry(entity=self, prompt=messages, answer=answer)
