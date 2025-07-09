@@ -3,8 +3,11 @@ from __future__ import annotations
 import copy
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Tuple, List, Union, Literal
-from openai.types.chat import ChatCompletionMessageParam, ChatCompletionSystemMessageParam
+from typing import Any, Tuple, List, Union, Literal, Optional
+from openai.types.chat import (
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+)
 
 # protect cyclic imports caused from typing
 from typing import TYPE_CHECKING
@@ -23,8 +26,13 @@ class Person(ABC):
         self.name: str = name
 
     @abstractmethod
-    def generate_answer(self, experiment_scenario: str, chat_list: List[ChatEntry], prompt_version: str
-                        ) -> Union[ChatEntry, None]:
+    def generate_answer(
+        self,
+        experiment_scenario: str,
+        chat_list: List[ChatEntry],
+        prompt_version: str,
+        is_questionnaire: bool = False,
+    ) -> Union[ChatEntry, None]:
         """
         Receives the current session state.
         Returns the ChatEntry to be added to the chat, or None if it currently shouldn't add one
@@ -41,45 +49,31 @@ class Person(ABC):
         return a json serializable representation of the Person instance for serializing using json.dumps
         """
         return {
-            'person_type': self.PERSON_TYPE,
-            'background_story': self.background_story,
-            'name': self.name
+            "person_type": self.PERSON_TYPE,
+            "background_story": self.background_story,
+            "name": self.name,
         }
 
-
-    def prompt_setups(self, prompt_version: Literal["v0", "v1", "v2"], experiment_scenario: str) -> List[ChatCompletionMessageParam]:
+    def prompt_setups(
+        self,
+        prompt_version: Literal["v0", "v1", "v2"],
+        experiment_scenario: str,
+        is_questionnaire: bool,
+    ) -> List[ChatCompletionMessageParam]:
         """
         Returns the prompt setup for the given version.
         """
         if prompt_version == "v0":
-            name_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Your name is {self.name}.",
-            }
             scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": f"The scenario is the following: {experiment_scenario}",
-            }
-            system_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"This is your background story: {self.background_story}",
-            }
-            general_instructions: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": "The following is a debate between you and and another person. Complete your next reply. Try to keep the reply shorter than 30 words and in German.\n\n",
+                "content": f"Scenario: {experiment_scenario}\nBackground Story: {self.background_story}\nThe following is a debate between you and and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n\n",
             }
             conversation: List[ChatCompletionMessageParam] = [
-                general_instructions,
-                name_message,
                 scenario_message,
-                system_message,
             ]
 
         elif prompt_version == "v1":
-            name_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Your name is {self.name}.",
-            }
+
             scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
                 "content": f"The scenario is the following: {experiment_scenario}",
@@ -88,41 +82,54 @@ class Person(ABC):
                 "role": "system",
                 "content": f"This is your background story: {self.background_story}",
             }
-            general_instructions: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": "The following is a conversation between you and and another person. Complete your next reply. Try to keep the reply shorter than 30 words and in German.\n",
-            }
+            if is_questionnaire:
+                general_instructions: ChatCompletionSystemMessageParam = {
+                    "role": "system",
+                    "content": "The following is a conversation between you and another person. You will be asked to answer a survey question. Complete your next reply with only a number.\n Example: If the question is 'How important are bees for the ecosystem?', your answer would be '6' or '7'.\n",
+                }
 
-            # different order of messages in v1 to v0
+            else:
+                general_instructions: ChatCompletionSystemMessageParam = {
+                    "role": "system",
+                    "content": "The following is a conversation between you and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n",
+                }
+
             conversation: List[ChatCompletionMessageParam] = [
-                name_message,
                 scenario_message,
                 system_message,
                 general_instructions,
             ]
 
         elif prompt_version == "v2":
-            name_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Dein Name ist {self.name}.",
-            }
+            # New English prompt structure for v2
             scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": f"Das Szenario ist das folgende: {experiment_scenario}",
+                "content": f"Scenario: {experiment_scenario}",
             }
-            system_message: ChatCompletionSystemMessageParam = {
+            background_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": f"Dies ist deine Vorgeschichte: {self.background_story}",
+                "content": f"Background Story: {self.background_story}",
             }
-            general_instructions: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": "Es folgt ein Gespräch zwischen Ihnen und einem anderen Person. Vervollständigen Sie Ihre nächste Antwort. Versuchen Sie, die Antwort kürzer als 30 Wörter und in Deutsch zu halten.\n\n",
-            }
+            if is_questionnaire:
+                instructions_message: ChatCompletionSystemMessageParam = {
+                    "role": "system",
+                    "content": (
+                        "You are about to answer a survey question as part of a conversation. "
+                        "Please reply with only a number."
+                    ),
+                }
+            else:
+                instructions_message: ChatCompletionSystemMessageParam = {
+                    "role": "system",
+                    "content": (
+                        "You are about to have a conversation with another person. "
+                        "Respond to the next message. Please keep your reply under 30 words and in German."
+                    ),
+                }
             conversation: List[ChatCompletionMessageParam] = [
-                general_instructions,
-                name_message,
+                instructions_message,
                 scenario_message,
-                system_message,
+                background_message,
             ]
 
         else:

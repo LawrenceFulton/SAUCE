@@ -47,10 +47,14 @@ class PersonOpenRouterCompletion(Person):
         )
 
     def generate_answer(
-        self, experiment_scenario: str, chat_list: List[ChatEntry], prompt_version: str
+        self,
+        experiment_scenario: str,
+        chat_list: List[ChatEntry],
+        prompt_version: str,
+        is_questionnaire: bool = False,
     ):
         generated_prompt: List[ChatCompletionMessageParam] = self.create_prompt(
-            experiment_scenario, chat_list, prompt_version
+            experiment_scenario, chat_list, prompt_version, is_questionnaire
         )
 
         full_response = self.client.chat.completions.create(
@@ -58,7 +62,7 @@ class PersonOpenRouterCompletion(Person):
             messages=generated_prompt,
             max_tokens=100,
             n=1,
-            temperature=0.6,
+            temperature=0.1,
         )
         # Retrieve the generated response (updated for new OpenAI package)
         output_text: str | None = full_response.choices[0].message.content
@@ -71,7 +75,11 @@ class PersonOpenRouterCompletion(Person):
         return ChatEntry(entity=self, prompt=generated_prompt, answer=parsed_answer)
 
     def create_prompt(
-        self, experiment_scenario: str, chat_list: List[ChatEntry], prompt_version: str
+        self,
+        experiment_scenario: str,
+        chat_list: List[ChatEntry],
+        prompt_version: str,
+        is_questionnaire: bool = False,
     ) -> List[ChatCompletionMessageParam]:
         """
         Creates a prompt with the past conversation in the format expected by OpenAI Chat API.
@@ -96,6 +104,7 @@ class PersonOpenRouterCompletion(Person):
         conversation: List[ChatCompletionMessageParam] = super().prompt_setups(
             experiment_scenario=experiment_scenario,
             prompt_version=prompt_version_literal,
+            is_questionnaire=is_questionnaire,
         )
 
         for chat_entry in chat_list:
