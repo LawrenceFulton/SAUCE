@@ -97,18 +97,21 @@ def create_persons_for_json(
     p1, p2 = vote
     person1, person2 = person
     name1, name2 = names
+    background_story1 =   person1["prompt"] if p1 != "keine Partei" else "" 
+    background_story2 = person2["prompt"] if p2 != "keine Partei" else ""
+
 
     return [
         {
             "class": "person_vllm",
             "name": name1,
-            "background_story": person1["prompt"],
+            "background_story": background_story1,
             "party": p1,
         },
         {
             "class": "person_vllm",
             "name": name2,
-            "background_story": person2["prompt"],
+            "background_story": background_story2,
             "party": p2,
         },
     ]
@@ -134,19 +137,19 @@ def create_names(fake: Faker, person1, person2) -> tuple[str, str]:
 
 
 def get_persons_from_df(
-    df: pd.DataFrame, p1: str, p2: str, random_state: int
+    df: pd.DataFrame, party1: str, party2: str, random_state: int
 ) -> tuple[pd.Series, pd.Series]:
     """Get two random persons from the DataFrame based on their vote."""
 
-    print(f"Selecting persons for parties: {p1} and {p2}")
-    person1 = df[df["vote"] == p1].sample(1, random_state=random_state).iloc[0]
-    person2 = df[df["vote"] == p2].sample(1, random_state=random_state + 1).iloc[0]
+    print(f"Selecting persons for parties: {party1} and {party2}")
+    person1 = df[df["vote"] == party1].sample(1, random_state=random_state).iloc[0]
+    person2 = df[df["vote"] == party2].sample(1, random_state=random_state + 1).iloc[0]
 
     # Ensure person1 and person2 are not the same
     while person1.equals(person2):
         random_state += 1
-        person1 = df[df["vote"] == p1].sample(1, random_state=random_state).iloc[0]
-        person2 = df[df["vote"] == p2].sample(1, random_state=random_state + 1).iloc[0]
+        person1 = df[df["vote"] == party1].sample(1, random_state=random_state).iloc[0]
+        person2 = df[df["vote"] == party2].sample(1, random_state=random_state + 1).iloc[0]
 
     return person1, person2
 
