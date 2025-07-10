@@ -2,10 +2,10 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
-QUESTION_AMOUNT = 1
+QUESTIONS = [3]
 MAX_WORKERS = 10
 PROMPT_VERSION = ["v0", "v1", "v2"]
-REPETITIONS = 6
+REPETITIONS = 5
 LLM_NAME = "41-mini"  # Change this to the desired LLM name
 
 
@@ -36,7 +36,7 @@ def run_experiment(subdir: str, prompt_version: str, repetition: int) -> None:
 def all_questions():
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         for repetition in range(REPETITIONS):
-            for q_index in range(QUESTION_AMOUNT):
+            for q_index in QUESTIONS:
                 directory = f"config/question_{q_index}"
                 print(f"+++++++ QUESTION {q_index} +++++++")
                 subdirs = get_subdirs(directory)
