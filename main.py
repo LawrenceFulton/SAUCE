@@ -7,8 +7,6 @@ from datetime import datetime
 from pathlib import Path
 
 import argparse
-# `json_fix` should not be removed it enables the __json__ to be the handler for json.dump & json.dumps
-import json_fix
 
 from experiments.batch_experiment import BatchExperiment
 from experiments.experiment import Experiment
