@@ -59,7 +59,7 @@ class PersonVLLM(Person):
             messages=messages,
             max_tokens=max_new_tokens,
             n=1,
-            temperature=0.6,
+            temperature=0.,
         )
 
         output = (response.choices[0].message.content or "") if response.choices else ""
