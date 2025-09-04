@@ -63,105 +63,64 @@ class Person(ABC):
     ) -> List[ChatCompletionMessageParam]:
         """
         Returns the prompt setup for the given version.
+        This implementation always returns a single system message (one-item list) where
+        previously separate messages are joined with newline characters.
         """
 
-        conversation: List[ChatCompletionMessageParam] = []
+        # Build the pieces of the single system message depending on prompt_version
+        parts: List[str] = []
 
-        ### v0 ###
         if prompt_version == "v0":
             content = f"Scenario: {experiment_scenario}\n"
             if is_questionnaire:
                 if self.background_story:
                     content += f"Background Story: {self.background_story}\n"
                 content += "The following is a a debate between you and another person\n"
-                scenario_message: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": content
-                }
             else:
                 if self.background_story:
                     content += f"Background Story: {self.background_story}\n"
-                content += "The following is a debate between you and and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n"
-                scenario_message: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": content,
-                }
-            conversation: List[ChatCompletionMessageParam] = [
-                scenario_message,
-            ]
+                content += (
+                    "The following is a debate between you and and another person. "
+                    "Complete your next reply. Keep the reply shorter than 30 words and in German.\n"
+                )
+            parts.append(content)
 
-
-        ### v1 ###
         elif prompt_version == "v1":
-            scenario_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"The scenario is the following: {experiment_scenario}",
-            }
+            parts.append(f"The scenario is the following: {experiment_scenario}")
             if self.background_story:
-                system_message: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": f"This is your background story: {self.background_story}",
-                }
-            else:
-                system_message: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": "",
-                }
+                parts.append(f"This is your background story: {self.background_story}")
             if is_questionnaire:
-                general_instructions: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": "The following is a conversation between you and another person.",
-                }
+                parts.append("The following is a conversation between you and another person.")
             else:
-                general_instructions: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": "The following is a conversation between you and another person. Complete your next reply. Don't make your answers too long and answer in German.\n",
-                }
-            conversation: List[ChatCompletionMessageParam] = [
-                scenario_message,
-            ]
-            if self.background_story:
-                conversation.append(system_message)
-            conversation.append(general_instructions)
+                parts.append(
+                    "The following is a conversation between you and another person. "
+                    "Complete your next reply. Don't make your answers too long and answer in German.\n"
+                )
 
-
-
-        ### v2 ###
         elif prompt_version == "v2":
-            scenario_message: ChatCompletionSystemMessageParam = {
-                "role": "system",
-                "content": f"Please imagine the following scenario: {experiment_scenario}",
-            }
-            conversation.append(scenario_message)
-    
-            if self.background_story:
-                background_message: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": f"Here is your background: {self.you_background_story}",
-                }
-                conversation.append(background_message)
-
+            # Keep the original ordering: instructions first, then scenario, then background (if any)
             if is_questionnaire:
-                instructions_message: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": (
-                        "Kindly respond in German to the next message from another person."
-                        "Please reply with only a number."
-                    ),
-                }
+                parts.append(
+                    "Kindly respond in German to the next message from another person. "
+                    "Please reply with only a number."
+                )
             else:
-                instructions_message: ChatCompletionSystemMessageParam = {
-                    "role": "system",
-                    "content": (
-                        "You are about to have a conversation with another person. "
-                        "Kindly respond in German to the next message from another person. Please keep your reply under 30 words."
-                    ),
-                }
-            conversation.insert(0, instructions_message)
+                parts.append(
+                    "You are about to have a conversation with another person. "
+                    "Kindly respond in German to the next message from another person. "
+                    "Please keep your reply under 30 words."
+                )
+            parts.append(f"Please imagine the following scenario: {experiment_scenario}")
+            if self.background_story:
+                parts.append(f"Here is your background: {self.you_background_story}")
 
         else:
-            assert (
-                False
-            ), f"Unknown prompt version {prompt_version}. Please use v0, v1 or v2."
+            raise AssertionError(f"Unknown prompt version {prompt_version}. Please use v0, v1 or v2.")
 
-        return conversation
+        # Join all non-empty parts with newline characters and return as single system message
+        single_system: ChatCompletionSystemMessageParam = {
+            "role": "system",
+            "content": "\n".join([p for p in parts if p and p.strip() != ""]),
+        }
+
+        return [single_system]
