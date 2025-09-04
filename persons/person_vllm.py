@@ -21,12 +21,13 @@ class PersonVLLM(Person):
     def __init__(
         self,
         background_story: str,
+        you_background_story: str,
         name: str,
         prompt_version: str = "v0",
         *args,
         **kwargs,
     ):
-        super().__init__(background_story, name)
+        super().__init__(background_story,you_background_story, name)
         self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8001/v1")
         
         # self.model: str = kwargs.get(

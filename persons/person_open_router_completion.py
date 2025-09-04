@@ -33,12 +33,13 @@ class PersonOpenRouterCompletion(Person):
     def __init__(
         self,
         background_story: str,
+        you_background_story: str,
         name: str,
         prompt_version: str = "v0",
         *args,
         **kwargs,
     ):
-        super().__init__(background_story, name)
+        super().__init__(background_story,you_background_story, name)
 
         self.model_name = PersonOpenRouterCompletion.MODEL_NAME
         self.client = OpenAI(

@@ -21,8 +21,9 @@ log = logging.getLogger(__name__)
 class Person(ABC):
     PERSON_TYPE = None
 
-    def __init__(self, background_story: str, name: str, *args, **kwargs):
+    def __init__(self, background_story: str, you_background_story: str, name: str, *args, **kwargs):
         self.background_story: str = background_story
+        self.you_background_story: str = you_background_story
         self.name: str = name
 
     @abstractmethod
@@ -66,6 +67,7 @@ class Person(ABC):
 
         conversation: List[ChatCompletionMessageParam] = []
 
+        ### v0 ###
         if prompt_version == "v0":
             content = f"Scenario: {experiment_scenario}\n"
             if is_questionnaire:
@@ -79,7 +81,7 @@ class Person(ABC):
             else:
                 if self.background_story:
                     content += f"Background Story: {self.background_story}\n"
-                content += "The following is a debate between you and and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n\n"
+                content += "The following is a debate between you and and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n"
                 scenario_message: ChatCompletionSystemMessageParam = {
                     "role": "system",
                     "content": content,
@@ -88,6 +90,8 @@ class Person(ABC):
                 scenario_message,
             ]
 
+
+        ### v1 ###
         elif prompt_version == "v1":
             scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
@@ -111,7 +115,7 @@ class Person(ABC):
             else:
                 general_instructions: ChatCompletionSystemMessageParam = {
                     "role": "system",
-                    "content": "The following is a conversation between you and another person. Complete your next reply. Keep the reply shorter than 30 words and in German.\n",
+                    "content": "The following is a conversation between you and another person. Complete your next reply. Don't make your answers too long and answer in German.\n",
                 }
             conversation: List[ChatCompletionMessageParam] = [
                 scenario_message,
@@ -120,17 +124,20 @@ class Person(ABC):
                 conversation.append(system_message)
             conversation.append(general_instructions)
 
+
+
+        ### v2 ###
         elif prompt_version == "v2":
             scenario_message: ChatCompletionSystemMessageParam = {
                 "role": "system",
-                "content": f"Scenario: {experiment_scenario}",
+                "content": f"Please imagine the following scenario: {experiment_scenario}",
             }
             conversation.append(scenario_message)
-
+    
             if self.background_story:
                 background_message: ChatCompletionSystemMessageParam = {
                     "role": "system",
-                    "content": f"Background Story: {self.background_story}",
+                    "content": f"Here is your background: {self.you_background_story}",
                 }
                 conversation.append(background_message)
 
@@ -138,7 +145,7 @@ class Person(ABC):
                 instructions_message: ChatCompletionSystemMessageParam = {
                     "role": "system",
                     "content": (
-                        "You are about to have a conversation with another person."
+                        "Kindly respond in German to the next message from another person."
                         "Please reply with only a number."
                     ),
                 }
@@ -147,7 +154,7 @@ class Person(ABC):
                     "role": "system",
                     "content": (
                         "You are about to have a conversation with another person. "
-                        "Respond to the next message. Please keep your reply under 30 words and in German."
+                        "Kindly respond in German to the next message from another person. Please keep your reply under 30 words."
                     ),
                 }
             conversation.insert(0, instructions_message)
