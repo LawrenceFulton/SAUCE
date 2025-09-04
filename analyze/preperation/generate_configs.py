@@ -39,7 +39,7 @@ BASE_CONFIG = {
             {
                 "id": "intro",
                 "iterations": "always",
-                "question": "Auf einer Skala von 1 bis 7: Wie sehr stimmst du der Aussage zu: {QUESTION} Antwote nur mit einer Zahl.",
+                "question": "Auf einer Skala von 1 bis 7: Wie sehr stimmst du der Aussage zu: {QUESTION} Antworte nur mit einer Zahl.",
             }
         ],
     },
@@ -99,19 +99,23 @@ def create_persons_for_json(
     name1, name2 = names
     background_story1 =   person1["prompt"] if p1 != "keine Partei" else "" 
     background_story2 = person2["prompt"] if p2 != "keine Partei" else ""
+    you_background_story1 = person1["you_prompt"] if p1 != "keine Partei" else ""
+    you_background_story2 = person2["you_prompt"] if p2 != "keine Partei" else ""
 
 
     return [
         {
-            "class": "person_vllm",
+            "class": "person_open_router_completion",
             "name": name1,
             "background_story": background_story1,
+            "you_background_story": you_background_story1,
             "party": p1,
         },
         {
-            "class": "person_vllm",
+            "class": "person_open_router_completion",
             "name": name2,
             "background_story": background_story2,
+            "you_background_story": you_background_story2,
             "party": p2,
         },
     ]
@@ -200,9 +204,7 @@ if __name__ == "__main__":
     fake = Faker("de_DE")
     fake.seed_instance(random_state)
 
-    # Load DataFrame from same directory as this script "ZA6835_v2-0-0.csv"
     csv_path = os.path.join(file_directory(), "ZA6835_v2-0-0.csv")
-
     df = pd.read_csv(csv_path, sep=";")
 
     # Ensure required columns exist

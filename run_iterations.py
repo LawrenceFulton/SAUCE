@@ -3,7 +3,7 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
 QUESTIONS = [3]
-MAX_WORKERS = 10
+MAX_WORKERS = 20
 PROMPT_VERSION = ["v0", "v1", "v2"]
 REPETITIONS = 5
 LLM_NAME = "41-mini"  # Change this to the desired LLM name
@@ -15,7 +15,7 @@ def get_subdirs(directory):
 
 def run_experiment(subdir: str, prompt_version: str, repetition: int) -> None:
     print(f"+++++++Repetition {repetition}: {subdir} ({prompt_version}) +++++++")
-    config_path = os.path.join(subdir, f"config_0.json")
+    config_path = os.path.join(subdir, f"config_{repetition}.json")
     output_out = os.path.join(
         subdir, f"out_{LLM_NAME}_{prompt_version}_{repetition}.json"
     )
