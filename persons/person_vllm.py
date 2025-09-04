@@ -28,9 +28,11 @@ class PersonVLLM(Person):
     ):
         super().__init__(background_story, name)
         self.api_base: str = kwargs.get("vllm_api_base", "http://localhost:8001/v1")
-        self.model: str = kwargs.get(
-            "model", "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
-        )
+        
+        # self.model: str = kwargs.get(
+        #     "model", "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
+        # )
+        self.model: str = kwargs.get("model", "openai/gpt-oss-120b")
         self.client = OpenAI(
             api_key="EMPTY",  # vLLM usually ignores this, but required by the client
             base_url=self.api_base,
@@ -50,17 +52,21 @@ class PersonVLLM(Person):
         messages: List[ChatCompletionMessageParam] = self.create_prompt(
             experiment_scenario, chat_list, prompt_version, is_questionnaire
         )
+        
         answer = self.evaluate(messages)
+
         return ChatEntry(entity=self, prompt=messages, answer=answer)
 
     def evaluate(self, messages: List[ChatCompletionMessageParam], max_new_tokens=100):
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            max_tokens=max_new_tokens,
             n=1,
-            temperature=0.,
+            temperature=0.1,
         )
+
+        print(":::" , messages, ": ", response)
+
 
         output = (response.choices[0].message.content or "") if response.choices else ""
         # remove the "Me: " prefix from the answer
