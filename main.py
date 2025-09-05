@@ -185,7 +185,3 @@ if __name__ == '__main__':
                     answers[name] = []
                 answers[name].append(answer)
 
-        # print the answers
-        for name, answer_list in answers.items():
-            print(f"Answers for {name}:")
-            print(answer_list)
