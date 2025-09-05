@@ -2,11 +2,11 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
-QUESTIONS = [3]
-MAX_WORKERS = 20
+QUESTIONS = [0]
+MAX_WORKERS = 10
 PROMPT_VERSION = ["v0", "v1", "v2"]
 REPETITIONS = 5
-LLM_NAME = "41-mini"  # Change this to the desired LLM name
+LLM_NAME = "gpt-oss"  # Change this to the desired LLM name
 
 
 def get_subdirs(directory):
@@ -19,18 +19,24 @@ def run_experiment(subdir: str, prompt_version: str, repetition: int) -> None:
     output_out = os.path.join(
         subdir, f"out_{LLM_NAME}_{prompt_version}_{repetition}.json"
     )
-    command = [
-        "python",
-        "main.py",
-        config_path,
-        "--json",
-        "-o",
-        output_out,
-        "--pretty-print",
-        "--prompt-version",
-        prompt_version,
-    ]
-    subprocess.run(command)
+
+    if not os.path.exists(output_out) or os.path.getsize(output_out) == 0:
+
+        command = [
+            "python",
+            "main.py",
+            config_path,
+            "--json",
+            "-o",
+            output_out,
+            "--pretty-print",
+            "--prompt-version",
+            prompt_version,
+        ]
+        subprocess.run(command)
+    else:
+        print(f"Skipping {output_out}, already exists and is not empty.")
+
 
 
 def all_questions():
