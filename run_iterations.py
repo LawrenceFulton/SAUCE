@@ -2,7 +2,7 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
-QUESTIONS = [3]
+QUESTIONS = [1]
 MAX_WORKERS = 20
 PROMPT_VERSION = ["v0", "v1", "v2"]
 REPETITIONS = 5
