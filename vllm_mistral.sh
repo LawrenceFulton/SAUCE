@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
-#SBATCH --time=01:30:00
+#SBATCH --time=02:30:00
 #SBATCH --output=logs/vllm_mistral_%j.log
 
 
