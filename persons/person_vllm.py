@@ -10,6 +10,7 @@ from openai.types.chat import (
 from persons.person import Person
 from session_rooms.session_room import ChatEntry
 from session_rooms.session_room import System
+import time
 
 
 log = logging.getLogger(__name__)
@@ -59,14 +60,32 @@ class PersonVLLM(Person):
         return ChatEntry(entity=self, prompt=messages, answer=answer)
 
     def evaluate(self, messages: List[ChatCompletionMessageParam], max_new_tokens=100):
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            n=1,
-            temperature=0.1,
-        )
 
-        print(":::" , messages, ": ", response)
+        cnt = 0
+        max_cnt = 3
+        response = None
+
+        while response is None:
+
+            
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    n=1,
+                    temperature=0.1,
+                )
+            except Exception as e:
+                # wait for 2 seconds and try again
+                log.error(f"Error while calling vLLM API: {e}. Retrying...")
+                log.error(f"Messages: {messages}")
+                time.sleep(15)
+                cnt += 1
+
+                if cnt >= max_cnt:
+                    log.error(f"Failed to get response from vLLM API after {max_cnt} attempts.")
+                    break
+
 
 
         output = (response.choices[0].message.content or "") if response.choices else ""
