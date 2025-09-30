@@ -81,7 +81,7 @@ class Person(ABC):
                     content += f"Background Story: {self.background_story}\n"
                 content += (
                     "The following is a debate between you and and another person. "
-                    "Complete your next reply. Keep the reply shorter than 30 words and in German.\n"
+                    "Complete your next reply. Keep the reply shorter than 30 words.\n"
                 )
             parts.append(content)
 
@@ -94,20 +94,20 @@ class Person(ABC):
             else:
                 parts.append(
                     "The following is a conversation between you and another person. "
-                    "Complete your next reply. Don't make your answers too long and answer in German.\n"
+                    "Complete your next reply. Don't make your answers too long.\n"
                 )
 
         elif prompt_version == "v2":
             # Keep the original ordering: instructions first, then scenario, then background (if any)
             if is_questionnaire:
                 parts.append(
-                    "Kindly respond in German to the next message from another person. "
+                    "Kindly respond to the next message from another person. "
                     "Please reply with only a number."
                 )
             else:
                 parts.append(
                     "You are about to have a conversation with another person. "
-                    "Kindly respond in German to the next message from another person. "
+                    "Kindly respond to the next message from another person. "
                     "Please keep your reply under 30 words."
                 )
             parts.append(f"Please imagine the following scenario: {experiment_scenario}")

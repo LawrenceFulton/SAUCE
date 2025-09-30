@@ -2,11 +2,11 @@ import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
-QUESTIONS = [0]
-MAX_WORKERS = 10
+QUESTIONS = [0,1,2,3,4]
+MAX_WORKERS = 20
 PROMPT_VERSION = ["v0", "v1", "v2"]
 REPETITIONS = 5
-LLM_NAME = "gpt-oss"  # Change this to the desired LLM name
+LLM_NAME = "mistral-7b"  # Change this to the desired LLM name
 
 
 def get_subdirs(directory):

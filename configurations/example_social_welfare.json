@@ -1,11 +1,11 @@
 {
     "experiment": {
-        "scenario": "Du diskutierst über die Aussage: Die Förderung von Windenergie soll beendet werden..",
+        "scenario": "You are discussing gun violence.",
         "survey_questions": [
             {
                 "id": "intro",
                 "iterations": "always",
-                "question": "Auf einer Skala von 1 bis 7: Wie sehr stimmst du der Aussage zu: Die Förderung von Windenergie soll beendet werden. Antworte nur mit einer Zahl."
+                "question": "On a scale from 1 to 10 where 1 is 'Strongly Disagree' and 10 is 'Strongly Agree', how much do you agree with the statement: Gun violence is a serious issue that needs to be addressed. Only reply with a number from 1 to 10. You don't need to explain your answer."
             }
         ]
     },
@@ -16,14 +16,16 @@
     "persons": [
         {
             "class": "person_open_router_completion",
-            "name": "Jonathan Meyer",
-            "background_story": "Ich bin 45 Jahre alt und männlich. Ich habe einen Realschulabschluss, ein mittleres monatliches Haushalts-Nettoeinkommen und ich bin berufstätig. Ich bin etwas religiös. Politisch-ideologisch ordne ich mich in der Mitte ein. Ich identifiziere mich ziemlich stark mit der Partei FDP und habe Bündnis 90/Die Grünen gewählt. Ich lebe in Westdeutschland. Ich finde, die Regierung sollte die Einwanderung erleichtern und habe keine Meinung dazu, ob die Regierung Maßnahmen ergreifen sollte, um die Einkommensunterschiede zu verringern.",
+            "name": "Anette Junck",
+            "background_story": "You think gun violence is a serious issue that needs to be addressed.",
+            "you_background_story": "You think gun violence is a serious issue that needs to be addressed.",
             "party": "Bündnis 90/Die Grünen"
         },
         {
             "class": "person_open_router_completion",
-            "name": "Miriam Fechner",
-            "background_story": "",
+            "name": "Hans-Jörg Spieß",
+            "background_story": "You don't think gun violence is a serious issue.",
+            "you_background_story": "You don't think gun violence is a serious issue.",
             "party": "AfD"
         }
     ],
