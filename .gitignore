@@ -230,3 +230,6 @@ test/
 config_server/*
 config_merged/*
 analyze/figures/*
+
+# files called preprocessed_out_41-mini
+analyze/preprocessed_out_41-mini.jsonl
