@@ -225,3 +225,8 @@ config/*
 
 # test dir
 test/
+
+
+config_server/*
+config_merged/*
+analyze/figures/*
