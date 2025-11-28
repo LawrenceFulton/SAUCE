@@ -6,6 +6,11 @@ from itertools import combinations_with_replacement
 import copy
 from faker import Faker
 
+#######################
+# person type can either be "person_open_router_completion" or "person_vllm"
+PERSON_TYPE = "person_open_router_completion"
+#######################
+
 
 QUESTIONS: list[tuple[str, str]] = [
     ("Tempolimit", "Auf allen Autobahnen soll ein generelles Tempolimit gelten."),
@@ -105,14 +110,14 @@ def create_persons_for_json(
 
     return [
         {
-            "class": "person_open_router_completion",
+            "class": PERSON_TYPE,
             "name": name1,
             "background_story": background_story1,
             "you_background_story": you_background_story1,
             "party": p1,
         },
         {
-            "class": "person_open_router_completion",
+            "class": PERSON_TYPE,
             "name": name2,
             "background_story": background_story2,
             "you_background_story": you_background_story2,

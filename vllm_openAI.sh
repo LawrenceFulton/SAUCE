@@ -14,7 +14,7 @@ module load CUDA/12.6.3
 
 
 # Activate environment
-source .venv/bin/activate
+source ../../vllm_env/bin/activate
 
 export TORCH_CUDA_ARCH_LIST="9.0" # For H100 GPUs
 
@@ -71,13 +71,10 @@ echo "vLLM server started successfully."
 echo "Current GPU status after vLLM launch:"
 nvidia-smi
 
-echo "Changing directory to SAUCE..."
-# change the dir to SAUCE
-cd SAUCE || exit 1
 
 # Run the Python script
 echo "Running Python script..."
-python -u run_iterations.py
+python -u run_iterations.py --llm-name "gpt-oss"
 
 # Stop the vLLM server
 echo "Stopping vLLM server..."

@@ -57,7 +57,7 @@ nvidia-smi
 
 # Run the Python script
 echo "Running Python script..."
-python -u run_iterations.py
+python -u run_iterations.py --llm-name "mistral"
 
 # Stop the vLLM server
 echo "Stopping vLLM server..."

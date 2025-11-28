@@ -51,7 +51,7 @@ nvidia-smi
 
 # Run your task
 echo "Running Python script..."
-python -u run_iterations.py
+python -u run_iterations.py --llm-name "llama-4-scout"
 
 # Kill vLLM server
 echo "Stopping vLLM server..."

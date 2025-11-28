@@ -1,23 +1,23 @@
 import os
 import subprocess
+import argparse
 from concurrent.futures import ThreadPoolExecutor
 
 QUESTIONS = [0,1,2,3,4]
 MAX_WORKERS = 20
 PROMPT_VERSION = ["v0", "v1", "v2"]
 REPETITIONS = 5
-LLM_NAME = "mistral-7b"  # Change this to the desired LLM name
 
 
 def get_subdirs(directory):
     return [entry.path for entry in os.scandir(directory) if entry.is_dir()]
 
 
-def run_experiment(subdir: str, prompt_version: str, repetition: int) -> None:
+def run_experiment(subdir: str, prompt_version: str, repetition: int, llm_name: str) -> None:
     print(f"+++++++Repetition {repetition}: {subdir} ({prompt_version}) +++++++")
     config_path = os.path.join(subdir, f"config_{repetition}.json")
     output_out = os.path.join(
-        subdir, f"out_{LLM_NAME}_{prompt_version}_{repetition}.json"
+        subdir, f"out_{llm_name}_{prompt_version}_{repetition}.json"
     )
 
     if not os.path.exists(output_out) or os.path.getsize(output_out) == 0:
@@ -39,7 +39,7 @@ def run_experiment(subdir: str, prompt_version: str, repetition: int) -> None:
 
 
 
-def all_questions():
+def all_questions(llm_name: str):
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         for repetition in range(REPETITIONS):
             for q_index in QUESTIONS:
@@ -48,8 +48,11 @@ def all_questions():
                 subdirs = get_subdirs(directory)
                 for subdir in subdirs:
                     for version in PROMPT_VERSION:
-                        executor.submit(run_experiment, subdir, version, repetition)
+                        executor.submit(run_experiment, subdir, version, repetition, llm_name)
 
 
 if __name__ == "__main__":
-    all_questions()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--llm-name", type=str, required=True, help="Name of the LLM used")
+    args = parser.parse_args()
+    all_questions(args.llm_name)
