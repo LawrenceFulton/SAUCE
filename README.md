@@ -59,11 +59,12 @@ You can run experiments using either OpenRouter or a local vLLM server.
     *Note: These scripts automatically call `run_iterations.py` with the appropriate `--llm-name` argument.*
 
 #### Option B: Using OpenRouter / Direct Execution
-
-1.  **Configure Model**: Open `persons/person_open_router_completion.py`.
+1.  **Set Key**: Get a key from OpenRouter
+    *   Set environment variable `OPENROUTER_API_KEY` to the key
+2.  **Configure Model**: Open `persons/person_open_router_completion.py`.
     *   Adjust the `MODEL_NAME` class attribute to match the model you intend to run (e.g., `"openai/gpt-4o-mini"`, `"google/gemini-2.0-flash-001"`, etc.).
 
-2.  **Run Script**:
+3.  **Run Script**:
     If you are not using vLLM or want to run `run_iterations.py` directly:
 
     ```bash
