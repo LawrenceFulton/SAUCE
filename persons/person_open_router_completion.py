@@ -67,7 +67,7 @@ class PersonOpenRouterCompletion(Person):
             messages=generated_prompt,
             max_tokens=100,
             n=1,
-            temperature=1,
+            temperature=0.1,
         )
         # Retrieve the generated response (updated for new OpenAI package)
         output_text: str | None = full_response.choices[0].message.content
