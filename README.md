@@ -1,4 +1,9 @@
-# SAUCE 🍝: Synchronous and Asynchronous User-Customizable Environment for Multi-Agent LLM Interaction
+# Code Repository for the Thesis: Beyond Bipartisanship: Investigating Opinion Shifts and Party Alignment in LLM Agent Simulations of a Multi-Party System
+By Lawrence Fulton\
+Deadline 01.12.2025 
+
+Codebase based on: 
+## SAUCE 🍝: Synchronous and Asynchronous User-Customizable Environment for Multi-Agent LLM Interaction
 
 The system we are developing aims to facilitate the execution and replication of experiments in the fields of Social Psychology and Behavioral Economics, utilizing LLM (Large language model) as participant.
 Our goal is to create an advanced experimental system that enables researchers to conduct and reproduce experiments with ease, specifically focusing on the domains of Social Psychology and Behavioral Economics. By leveraging LLM, we aim to reproduce experiment result using those LLMs.
